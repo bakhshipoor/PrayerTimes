@@ -1,116 +1,97 @@
+#include "prayertimes.h"
+#include "prayertimes_math.h"
 
-/*
- *  @file: PrayMath.c
- *  @brief:
- *  @author: Hossein Bakhshipoor <h.bakhshipoor@gmail.com>
- *  @date: 2024-11-24
- *  @company: Behnix Co.
- *  @version: 1.0
- *  @copyright Copyright (c) 2024, Behnix Co.
- *  @license: Proprietary. All rights reserved.
- */
-
-#include "PrayTimes.h"
-#include "PrayMath.h"
-
-double PT_Fix_Angle(double a)
+double pt_fix_angle(double a)
 {
-	return PT_Fix(a, 360);
+	return pt_fix(a, 360);
 }
 
-double PT_Fix_Hour(double a)
+double pt_fix_hour(double a)
 {
-	return PT_Fix(a, 24);
+	return pt_fix(a, 24);
 }
 
-double PT_Fix(double a, double b)
+double pt_fix(double a, double b)
 {
 	a = a - b * (floor(a / b));
 	return (a < 0) ? a + b : a;
 }
 
-double PT_DTR(double degrees)
+double pt_degree_to_radian(double degrees)
 {
 	return (degrees * M_PI) / 180.0;
 }
 
-double PT_RTD(double radians)
+double pt_radian_to_degree(double radians)
 {
 	return (radians * 180) / M_PI;
 }
 
-double PT_Sin(double d)
+double pt_sin(double d)
 {
-	return sin(PT_DTR(d));
+	return sin(pt_degree_to_radian(d));
 }
 
-double PT_Cos(double d)
+double pt_cos(double d)
 {
-	return cos(PT_DTR(d));
+	return cos(pt_degree_to_radian(d));
 }
 
-double PT_Tan(double d)
+double pt_tan(double d)
 {
-	return tan(PT_DTR(d));
+	return tan(pt_degree_to_radian(d));
 }
 
-double PT_ArcSin(double d)
+double pt_arcsin(double d)
 {
-	return PT_RTD(asin(d));
+	return pt_radian_to_degree(asin(d));
 }
 
-double PT_ArcCos(double d)
+double pt_arccos(double d)
 {
-	return PT_RTD(acos(d));
+	return pt_radian_to_degree(acos(d));
 }
 
-double PT_ArcTan(double d)
+double pt_arctan(double d)
 {
-	return PT_RTD(atan(d));
+	return pt_radian_to_degree(atan(d));
 }
 
-double PT_ArcCot(double x)
+double pt_arccot(double x)
 {
-	return PT_RTD(atan(1 / x));
+	return pt_radian_to_degree(atan(1 / x));
 }
 
-double PT_ArcTan2(double x, double y)
+double pt_arctan2(double x, double y)
 {
-	return PT_RTD(atan2(x, y));
+	return pt_radian_to_degree(atan2(x, y));
 }
 
-double PT_JDN(uint16_t year, uint16_t month, uint16_t day, uint16_t hour)
+double pt_jdn(uint16_t year, uint16_t month, uint16_t day, uint16_t hour)
 {
-	double y, m, d, h;
-	y = (double)year;
-	m = (double)month;
-	d = (double)day;
-	h = (double)hour;
-	double mm = ((m - 14) / 12);
-	double jdn = (1461 * (y + 4800 + mm) / 4) + ((367 * (m - 2 - 12 * mm)) / 12) - ((3 * ((y + 4900 + mm) / 100)) / 4) + d - 32075 + ((h - 12) / 24);
-	return jdn;
+	if (month <= 2) {
+		year -= 1;
+		month += 12;
+	};
+	double A = floor(year / 100);
+	double B = 2 - A + floor(A / 4);
+
+	double JD = floor(365.25 * (year + 4716)) + floor(30.6001 * (month + 1)) + day + B - 1524.5;
+	return JD;
 }
 
-void PT_Double_To_Time(double time, uint16_t* hour, uint16_t* minute)
+void pt_double_to_time(double source_time, pt_time_t* destination_time)
 {
 	double h, m, s;
-	*hour = (uint16_t)time;
-	h = floor(time);
-	m = (time - h) * 60;
-	*minute = (uint16_t)m;
+	destination_time->hour = (uint16_t)source_time;
+	h = floor(source_time);
+	m = (source_time - h) * 60;
+	destination_time->minute = (uint16_t)m;
 	s = (m - floor(m)) * 60;
-	if (s > 30.0)
-	{
-		*minute += 1;
-		if (*minute > 59)
-		{
-			*minute = 0;
-			*hour += 1;
-		}
-	}
+	destination_time->second = (uint16_t)s;
 }
 
-double PT_Time_To_Double(int16_t hour, int16_t minute)
+double pt_time_to_double(int16_t hour, int16_t minute)
 {
 	double h, m;
 	h = (double)hour;
@@ -118,41 +99,41 @@ double PT_Time_To_Double(int16_t hour, int16_t minute)
 	return ((h * 3600.0) + (m * 60.0)) / 3600.0;
 }
 
-double PT_Time_Diff(double time1, double time2)
+double pt_time_diff(double time1, double time2)
 {
-	return PT_Fix_Hour(time2 - time1);
+	return pt_fix_hour(time2 - time1);
 }
 
-void Calculate_Sun_Position(uint32_t JDN, Pray_Times_t* pray_times)
+void pt_calculate_sun_position(uint32_t JDN, pt_data_t* pt_data)
 {
-	double jdn = JDN - 2451544.5; // JDN( 2000-01-01 @ 00:00:00 AM ) = 2451544.5 
+	double jdn = JDN - 2451544.0 ; // JDN( 2000-01-01 @ 00:00:00 AM ) = 2451544.5  // 2451545.0
 
-	double g = PT_Fix_Angle(357.529 + (0.98560028 * jdn));
-	double q = PT_Fix_Angle(280.459 + (0.98564736 * jdn));
-	double L = PT_Fix_Angle(q + (1.915 * PT_Sin(g)) + (0.020 * PT_Sin(2.0 * g)));
+	double g = pt_fix_angle(357.529 + (0.98560028 * jdn));
+	double q = pt_fix_angle(280.459 + (0.98564736 * jdn));
+	double L = pt_fix_angle(q + (1.915 * pt_sin(g)) + (0.020 * pt_sin(2.0 * g)));
 
-	double R = 1.00014 - (0.01671 * PT_Cos(g)) - (0.00014 * PT_Cos(2.0 * g));
+	double R = 1.00014 - (0.01671 * pt_cos(g)) - (0.00014 * pt_cos(2.0 * g));
 	double e = 23.439 - (0.00000036 * jdn);
-	double RA = PT_ArcTan2(PT_Cos(e) * PT_Sin(L), PT_Cos(L)) / 15.0;
+	double RA = pt_arctan2(pt_cos(e) * pt_sin(L), pt_cos(L)) / 15.0;
 
-	pray_times->Calc_Data.Sun_Positin.DeclinationSun = PT_ArcSin(PT_Sin(e) * PT_Sin(L));    // declination of the Sun
-	pray_times->Calc_Data.Sun_Positin.EquationTime = (q / 15.0) - PT_Fix_Hour(RA);          // equation of time
+	pt_data->calc_data.sun_positin.declination_sun = pt_arcsin(pt_sin(e) * pt_sin(L));    // declination of the Sun
+	pt_data->calc_data.sun_positin.equation_time = (q / 15.0) - pt_fix_hour(RA);          // equation of time
 }
 
-double Calculate_Sun_Angle_Time(double angle, Pray_Times_t* pray_times)
+double pt_calculate_sun_angle_time(double angle, pt_data_t* pt_data)
 {
-	return (1.0 / 15.0) * PT_ArcCos((-PT_Sin(angle) - PT_Sin(pray_times->User_Data.Location.Latitude) * PT_Sin(pray_times->Calc_Data.Sun_Positin.DeclinationSun)) / (PT_Cos(pray_times->User_Data.Location.Latitude) * PT_Cos(pray_times->Calc_Data.Sun_Positin.DeclinationSun)));
+	return (1.0 / 15.0) * pt_arccos((-pt_sin(angle) - pt_sin(pt_data->settings.location.latitude) * pt_sin(pt_data->calc_data.sun_positin.declination_sun)) / (pt_cos(pt_data->settings.location.latitude) * pt_cos(pt_data->calc_data.sun_positin.declination_sun)));
 
 }
 
-double Calculate_Asr_Angle_Time(int factor, Pray_Times_t* pray_times)
+double pt_calculate_asr_angle_time(int factor, pt_data_t* pt_data)
 {
-	double angle = 0 - PT_ArcCot(factor + PT_Tan(fabs(pray_times->User_Data.Location.Latitude - pray_times->Calc_Data.Sun_Positin.DeclinationSun)));
-	return (Calculate_Sun_Angle_Time(angle, pray_times));
+	double angle = 0 - pt_arccot(factor + pt_tan(fabs(pt_data->settings.location.latitude - pt_data->calc_data.sun_positin.declination_sun)));
+	return (pt_calculate_sun_angle_time(angle, pt_data));
 }
 
-double Calculate_Sun_Time_Angle(double time, Pray_Times_t* pray_times)
+double pt_calculate_sun_time_angle(double time, pt_data_t* pt_data)
 {
-	return PT_ArcSin(-PT_Cos(15.0 * time) * PT_Cos(pray_times->User_Data.Location.Latitude) * PT_Cos(pray_times->Calc_Data.Sun_Positin.DeclinationSun) - PT_Sin(pray_times->User_Data.Location.Latitude) * PT_Sin(pray_times->Calc_Data.Sun_Positin.DeclinationSun));
+	return pt_arcsin(-pt_cos(15.0 * time) * pt_cos(pt_data->settings.location.latitude) * pt_cos(pt_data->calc_data.sun_positin.declination_sun) - pt_sin(pt_data->settings.location.latitude) * pt_sin(pt_data->calc_data.sun_positin.declination_sun));
 }
 

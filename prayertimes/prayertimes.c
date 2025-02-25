@@ -1,358 +1,596 @@
-﻿/*
- *  @file: PrayTimes.c
- *  @brief:
- *  @author: Hossein Bakhshipoor <h.bakhshipoor@gmail.com>
- *  @date: 2024-11-22
- *  @company: Behnix Co.
- *  @version: 1.0
- *  @copyright Copyright (c) 2024, Behnix Co.
- *  @license: Proprietary. All rights reserved.
- */
+﻿#include <stdio.h>
+#include <stdlib.h>
+#include "prayertimes.h"
+#include "prayertimes_math.h"
 
-#include "PrayTimes.h"
-#include "PrayMath.h"
+static pt_data_t* pt_data = NULL;
 
-Pray_Times_t* BX_PrayTimes;
+static void pt_calculate_pray_times(pt_data_t* pt_data);
+static void pt_calculate_imsak(pt_data_t* pt_data);
+static void pt_calculate_fajr(pt_data_t* pt_data);
+static void pt_calculate_sunrise(pt_data_t* pt_data);
+static void pt_calculate_midday(pt_data_t* pt_data);
+static void pt_calculate_duhur(pt_data_t* pt_data);
+static void pt_calculate_asr(pt_data_t* pt_data);
+static void pt_calculate_sunset(pt_data_t* pt_data);
+static void pt_calculate_maghrib(pt_data_t* pt_data);
+static void pt_calculate_isha(pt_data_t* pt_data);
+static void pt_calculate_midnight(pt_data_t* pt_data);
+static void pt_calculate_day_time(pt_data_t* pt_data);
+static void pt_calculate_night_time(pt_data_t* pt_data);
+static void pt_adjust_higher_latitude(pt_data_t* pt_data);
+static double pt_get_method_angle(pt_data_t* pt_data, pt_time_e time);
+static uint16_t pt_calculate_days_in_month(uint16_t* year, uint16_t* month);
+static bool pt_validate_date(pt_date_t* date);
 
-static void Calculate_Pray_Times(Pray_Times_t* pray_times);
-static void Calculate_Imsak(Pray_Times_t* pray_times);
-static void Calculate_Fajr(Pray_Times_t* pray_times);
-static void Calculate_Sunrise(Pray_Times_t* pray_times);
-static void Calculate_Midday(Pray_Times_t* pray_times);
-static void Calculate_Duhur(Pray_Times_t* pray_times);
-static void Calculate_Asr(Pray_Times_t* pray_times);
-static void Calculate_Sunset(Pray_Times_t* pray_times);
-static void Calculate_Maghrib(Pray_Times_t* pray_times);
-static void Calculate_Isha(Pray_Times_t* pray_times);
-static void Calculate_Midnight(Pray_Times_t* pray_times);
-static void Calculate_Day_Time(Pray_Times_t* pray_times);
-static void Calculate_Night_Time(Pray_Times_t* pray_times);
-static void Adjust_Higher_Latitude(Pray_Times_t* pray_times);
-static double Get_Method_Angle(Pray_Times_t* pray_times, PT_Time_e time);
-
-const PT_Calc_Method_t PT_Calc_Methods[PT_CM_TOTAL] = {
+const pt_calc_method_t pt_calc_methods[PT_CM_TOTAL] = {
 	// https://www.islamicfinder.org/prayer-times/
 	// https://intime.ir/doc.html
 	// http://praytimes.org/wiki/Calculation_Methods
 	// https://mawaqit.net/
 	{
+		.refrence = PT_CM_CUSTOM,
+		.angles = {0},
+		.offsets = {0},
+	},
+	{
 		// 01. Algeria, Ministry of religious affairs and wakfs
-		.Refrence = PT_CM_ALGERIA_MOFA,
+		.refrence = PT_CM_ALGERIA_MOFA,
 		//                        Fajr:  18.0°, Maghrib:  0.833°, Isha:  17.0°
-		.Angles = {.Imsak = 0.0, .Fajr = 18.0, .Maghrib = 0.833, .Isha = 17.0},
+		.angles = {.imsak = 0.0, .fajr = 18.0, .maghrib = 0.833, .isha = 17.0},
 		// 0
-		.Offsets = {0},
+		.offsets = {0},
 	},
 	{
 		// 02. North America, Islamic Society of North America 
-		.Refrence = PT_CM_AMERICA_NORTH,
+		.refrence = PT_CM_AMERICA_NORTH,
 		//                        Fajr:  15.0°, Maghrib:  0.833°, Isha:  15.0°
-		.Angles = {.Imsak = 0.0, .Fajr = 15.0, .Maghrib = 0.833, .Isha = 15.0},
+		.angles = {.imsak = 0.0, .fajr = 15.0, .maghrib = 0.833, .isha = 15.0},
 		// 0
-		.Offsets = {0},
+		.offsets = {0},
 	},
 	{
 		// 03. Egypt, General Authority of Survey 
-		.Refrence = PT_CM_EGYPT_GAS,
+		.refrence = PT_CM_EGYPT_GAS,
 		//                        Fajr:  19.5°, Maghrib:  0.833°, Isha:  17.5°
-		.Angles = {.Imsak = 0.0, .Fajr = 19.5, .Maghrib = 0.833, .Isha = 17.5},
+		.angles = {.imsak = 0.0, .fajr = 19.5, .maghrib = 0.833, .isha = 17.5},
 		// 0
-		.Offsets = {0},
+		.offsets = {0},
 	},
 	{
 		// 04. France, Muslims of France 
-		.Refrence = PT_CM_FRANCE_MUSLIM,
+		.refrence = PT_CM_FRANCE_MUSLIM,
 		//                        Fajr:  12.0°, Maghrib:  0.833°, Isha:  12.0°
-		.Angles = {.Imsak = 0.0, .Fajr = 12.0, .Maghrib = 0.833, .Isha = 12.0},
+		.angles = {.imsak = 0.0, .fajr = 12.0, .maghrib = 0.833, .isha = 12.0},
 		// 0
-		.Offsets = {0},
+		.offsets = {0},
 	},
 	{
 		// 05. Indonesia, Sihat Kemenag
-		.Refrence = PT_CM_INDONESIA_SIHAT,
+		.refrence = PT_CM_INDONESIA_SIHAT,
 		//                        Fajr:  20.0°, Maghrib:  0.833°, Isha:  18.0°
-		.Angles = {.Imsak = 0.0, .Fajr = 20.0, .Maghrib = 0.833, .Isha = 18.0},
+		.angles = {.imsak = 0.0, .fajr = 20.0, .maghrib = 0.833, .isha = 18.0},
 		// 0
-		.Offsets = {0},
+		.offsets = {0},
 	},
 	{
 		// 06. Iran, Qom, Leva Institute
-		.Refrence = PT_CM_IRAN_QOM,
+		.refrence = PT_CM_IRAN_QOM,
 		//                        Fajr:  16.0°, Maghrib:  4.0°, Isha:  14.0°
-		.Angles = {.Imsak = 0.0, .Fajr = 16.0, .Maghrib = 4.0, .Isha = 14.0},
+		.angles = {.imsak = 0.0, .fajr = 16.0, .maghrib = 4.0, .isha = 14.0},
 		// 0
-		.Offsets = {0},
+		.offsets = {0},
 	},
 	{
 		// 07. Iran, Tehran, Institute of Geophysics University of Tehran
-		.Refrence = PT_CM_IRAN_TEHRAN,
+		.refrence = PT_CM_IRAN_TEHRAN,
 		//                        Fajr:  17.7°, Maghrib:  4.5°, Isha:  14.0°
-		.Angles = {.Imsak = 0.0, .Fajr = 17.7, .Maghrib = 4.5, .Isha = 14.0},
+		.angles = {.imsak = 0.0, .fajr = 17.7, .maghrib = 4.5, .isha = 14.0},
 		// 0
-		.Offsets = {0},
+		.offsets = {0},
 	},
 	{
 		// 08. Kuwait,
-		.Refrence = PT_CM_KUWAIT,
+		.refrence = PT_CM_KUWAIT,
 		//                        Fajr:  18.0°, Maghrib:  0.833°, Isha:  17.5°
-		.Angles = {.Imsak = 0.0, .Fajr = 18.0, .Maghrib = 0.833, .Isha = 17.5},
+		.angles = {.imsak = 0.0, .fajr = 18.0, .maghrib = 0.833, .isha = 17.5},
 		// 0
-		.Offsets = {0},
+		.offsets = {0},
 	},
 	{
 		// 09. Malaysia, Jabatan Kemajuan Islam
-		.Refrence = PT_CM_MALAYSIA,
+		.refrence = PT_CM_MALAYSIA,
 		//                        Fajr:  18.0°, Maghrib:  0.833°, Isha:  18.0°
-		.Angles = {.Imsak = 0.0, .Fajr = 18.0, .Maghrib = 0.833, .Isha = 18.0},
+		.angles = {.imsak = 0.0, .fajr = 18.0, .maghrib = 0.833, .isha = 18.0},
 		// 0
-		.Offsets = {0},
+		.offsets = {0},
 	},
 	{
 		// 10. Mecca, Umm al - Qura University
-		.Refrence = PT_CM_MECCA_UMMALQURA,
+		.refrence = PT_CM_MECCA_UMMALQURA,
 		//                        Fajr:  18.0°, Maghrib:  0.833°, Isha:  0.833° + 90 minutes
-		.Angles = {.Imsak = 0.0, .Fajr = 18.5, .Maghrib = 0.833, .Isha = 0.833},
+		.angles = {.imsak = 0.0, .fajr = 18.5, .maghrib = 0.833, .isha = 0.833},
 		// Isha:  90 minutes
-		.Offsets = {.Imsak = 0, .Fajr = 0, .Sunrise = 0, .Duhur = 1, .Asr = 0, .Sunset = 0, .Maghrib = 0, .Isha = 90, .Midnight = 0},
+		.offsets = {.imsak = 0, .fajr = 0, .sunrise = 0, .duhur = 1, .asr = 0, .sunset = 0, .maghrib = 0, .isha = 90, .midnight = 0},
 	},
 	{
 		// 11. Morocco, Ministry of wakfs and islamic affairs
-		.Refrence = PT_CM_MOROCCO,
+		.refrence = PT_CM_MOROCCO,
 		//                        Fajr:  18.0°, Maghrib:  0.833°, Isha:  17.0°
-		.Angles = {.Imsak = 0.0, .Fajr = 18.0, .Maghrib = 0.833, .Isha = 17.0},
+		.angles = {.imsak = 0.0, .fajr = 18.0, .maghrib = 0.833, .isha = 17.0},
 		// 0
-		.Offsets = {0},
+		.offsets = {0},
 	},
 	{
 		// 12. Pakistan, University of Science of Karachi
-		.Refrence = PT_CM_PAKISTAN_KARACHI,
+		.refrence = PT_CM_PAKISTAN_KARACHI,
 		//                        Fajr:  18.0°, Maghrib:  0.833°, Isha:  18.0°
-		.Angles = {.Imsak = 0.0, .Fajr = 18.0, .Maghrib = 0.833, .Isha = 18.0},
+		.angles = {.imsak = 0.0, .fajr = 18.0, .maghrib = 0.833, .isha = 18.0},
 		// 0
-		.Offsets = {0},
+		.offsets = {0},
 	},
 	{
 		// 13. Qatar,
-		.Refrence = PT_CM_QATAR,
+		.refrence = PT_CM_QATAR,
 		//                        Fajr:  18.0°, Maghrib:  0.833°, Isha:  0.833°
-		.Angles = {.Imsak = 0.0, .Fajr = 18.0, .Maghrib = 0.833, .Isha = 0.833},
+		.angles = {.imsak = 0.0, .fajr = 18.0, .maghrib = 0.833, .isha = 0.833},
 		// Isha: 90 minutes
-		.Offsets = {.Imsak = 0, .Fajr = 0, .Sunrise = 0, .Duhur = 1, .Asr = 0, .Sunset = 0, .Maghrib = 0, .Isha = 90, .Midnight = 0},
+		.offsets = {.imsak = 0, .fajr = 0, .sunrise = 0, .duhur = 1, .asr = 0, .sunset = 0, .maghrib = 0, .isha = 90, .midnight = 0},
 	},
 	{
 		// 14. Russia, Spiritual Administration of Muslims
-		.Refrence = PT_CM_RUSSIA_MUSLIM,
+		.refrence = PT_CM_RUSSIA_MUSLIM,
 		//                        Fajr:  16.0°, Maghrib:  0.833°, Isha:  15.0°
-		.Angles = {.Imsak = 0.0, .Fajr = 16.0, .Maghrib = 0.833, .Isha = 15.0},
+		.angles = {.imsak = 0.0, .fajr = 16.0, .maghrib = 0.833, .isha = 15.0},
 		// 0
-		.Offsets = {0},
+		.offsets = {0},
 	},
 	{
 		// 15. Singapore, Majlis Ugama Islam
-		.Refrence = PT_CM_SINGAPORE,
+		.refrence = PT_CM_SINGAPORE,
 		//                        Fajr:  20.0°, Maghrib:  0.833°, Isha:  18.0°
-		.Angles = {.Imsak = 0.0, .Fajr = 20.0, .Maghrib = 0.833, .Isha = 18.0},
+		.angles = {.imsak = 0.0, .fajr = 20.0, .maghrib = 0.833, .isha = 18.0},
 		// 0
-		.Offsets = {0},
+		.offsets = {0},
 	},
 	{
 		// 16. Tunisia, Ministry of Religious Affairs
-		.Refrence = PT_CM_TUNISIA_MOFA,
+		.refrence = PT_CM_TUNISIA_MOFA,
 		//                        Fajr:  10.0°, Maghrib:  0.833°, Isha:  10.0°
-		.Angles = {.Imsak = 0.0, .Fajr = 10.0, .Maghrib = 0.833, .Isha = 10.0},
+		.angles = {.imsak = 0.0, .fajr = 10.0, .maghrib = 0.833, .isha = 10.0},
 		// 0
-		.Offsets = {0},
+		.offsets = {0},
 	},
 	{
 		// 17. Turkiye, Presidency of Religious Affairs
-		.Refrence = PT_CM_TURKIYE_DIYANET,
+		.refrence = PT_CM_TURKIYE_DIYANET,
 		//                        Fajr:  18.0°, Maghrib:  0.833°, Isha:  17.0°
-		.Angles = {.Imsak = 0.0, .Fajr = 18.0, .Maghrib = 0.833, .Isha = 17.0},
+		.angles = {.imsak = 0.0, .fajr = 18.0, .maghrib = 0.833, .isha = 17.0},
 		// sunrise: -7, dhuhr: 5, asr: 4, maghrib: 7 minutes
-		.Offsets = {.Imsak = 0, .Fajr = 0, .Sunrise = -7, .Duhur = 5, .Asr = 4, .Sunset = 0, .Maghrib = 7, .Isha = 0, .Midnight = 0},
+		.offsets = {.imsak = 0, .fajr = 0, .sunrise = -7, .duhur = 5, .asr = 4, .sunset = 0, .maghrib = 7, .isha = 0, .midnight = 0},
 	},
 	{
 		// 18. World, World Islamic League
-		.Refrence = PT_CM_WORLD_LEAGUE,
+		.refrence = PT_CM_WORLD_LEAGUE,
 		//                        Fajr:  18.0°, Maghrib:  0.833°, Isha:  17.0°
-		.Angles = {.Imsak = 0.0, .Fajr = 18.0, .Maghrib = 0.833, .Isha = 17.0},
+		.angles = {.imsak = 0.0, .fajr = 18.0, .maghrib = 0.833, .isha = 17.0},
 		// 0
-		.Offsets = {0},
-	},
-	{
-		// 19. Custom
-		.Refrence = PT_CM_CUSTOM,
-		// 0
-		.Angles = {0},
-		// 0
-		.Offsets = {0},
+		.offsets = {0},
 	},
 };
 
-bool PrayTimes_Init(void)
+bool prayertimes_init(void)
 {
-	if (BX_PrayTimes != NULL)
+	if (pt_data != NULL)
+	{
+		free(pt_data);
+		pt_data = NULL;
+	}
+	pt_data = (pt_data_t*)calloc(1, sizeof(pt_data_t));
+	if (pt_data == NULL)
 	{
 		return false;
 	}
-	BX_PrayTimes = (Pray_Times_t*)calloc(1, sizeof(Pray_Times_t));
-	if (BX_PrayTimes == NULL)
-	{
-		return false;
-	}
+	// Set Calculation Method
+	pt_set_calc_method(PT_CM_IRAN_TEHRAN);
+	// Set Juristic Method
+	pt_set_juristic_method(PT_J_STANDARD);
+	// Set Higher Latatiude Method
+	pt_set_hilat_method(PT_HL_NONE);
+	// Set Midnight Method
+	pt_set_midnight_method(PT_MD_JAFARI);
+	// Set Location
+	pt_location_t location = { .latitude = 35.6892, .longitude = 51.3890, .altitude = 0 };
+	pt_set_location(&location);
+	// Set Date
+	pt_date_t date = { .year = 2025, .month = 2, .day = 25 };
+	pt_set_date(&date);
+	// Set Time Zone Offset
+	pt_set_timezone_offset(3.5);
+	// Set Initial Status
+	pt_data->is_init = true;
 }
 
+// Set Methods
 
-static void Calculate_Pray_Times(Pray_Times_t* pray_times)
+bool pt_set_calc_method(pt_calc_method_e calc_method)
+{
+	if (pt_data == NULL)
+	{
+		return false;
+	}
+	if (calc_method < PT_CM_CUSTOM || calc_method >= PT_CM_TOTAL)
+	{
+		return false;
+	}
+	pt_data->settings.calc_method = calc_method;
+	if (calc_method != PT_CM_CUSTOM)
+	{
+		pt_set_angles(&pt_calc_methods[PT_CM_IRAN_TEHRAN].angles);
+		pt_set_offsets(&pt_calc_methods[PT_CM_IRAN_TEHRAN].offsets);
+	}
+	return true;
+}
+
+bool pt_set_angles(pt_angles_t* angles)
+{
+	if (pt_data == NULL)
+	{
+		return false;
+	}
+	pt_data->settings.angles.imsak = angles->imsak;
+	pt_data->settings.angles.fajr = angles->fajr;
+	pt_data->settings.angles.maghrib = angles->maghrib;
+	pt_data->settings.angles.isha = angles->isha;
+	return true;
+}
+
+bool pt_set_offsets(pt_offsets_t* offsets)
+{
+	if (pt_data == NULL)
+	{
+		return false;
+	}
+	pt_data->settings.offsets.imsak = offsets->imsak;
+	pt_data->settings.offsets.fajr = offsets->fajr;
+	pt_data->settings.offsets.sunrise = offsets->sunrise;
+	pt_data->settings.offsets.duhur = offsets->duhur;
+	pt_data->settings.offsets.asr = offsets->asr;
+	pt_data->settings.offsets.sunset = offsets->sunset;
+	pt_data->settings.offsets.maghrib = offsets->maghrib;
+	pt_data->settings.offsets.isha = offsets->isha;
+	pt_data->settings.offsets.midnight = offsets->midnight;
+	return true;
+}
+
+bool pt_set_juristic_method(pt_juristic_e juristic)
+{
+	if (pt_data == NULL)
+	{
+		return false;
+	}
+	if (juristic < PT_J_STANDARD || juristic > PT_J_HANAFI)
+	{
+		return false;
+	}
+	pt_data->settings.juristic = juristic;
+	return true;
+}
+
+bool pt_set_hilat_method(pt_hl_method_e hl_method)
+{
+	if (pt_data == NULL)
+	{
+		return false;
+	}
+	if (hl_method < PT_HL_NONE || hl_method > PT_HL_ONESEVENTH)
+	{
+		return false;
+	}
+	pt_data->settings.hl_method = hl_method;
+	return true;
+}
+
+bool pt_set_midnight_method(pt_midnight_method_e md_method)
+{
+	if (pt_data == NULL)
+	{
+		return false;
+	}
+	if (md_method < PT_MD_STANDARD || md_method > PT_MD_JAFARI)
+	{
+		return false;
+	}
+	pt_data->settings.md_method = md_method;
+	return true;
+}
+
+bool pt_set_location(pt_location_t* location)
+{
+	if (pt_data == NULL)
+	{
+		return false;
+	}
+	pt_data->settings.location.latitude = location->latitude;
+	pt_data->settings.location.longitude = location->longitude;
+	pt_data->settings.location.altitude = location->altitude;
+	return true;
+}
+
+bool pt_set_date(pt_date_t* date)
+{
+	if (pt_data == NULL)
+	{
+		return false;
+	}
+	if (!pt_validate_date(date))
+	{
+		return false;
+	}
+	pt_data->settings.date.year = date->year;
+	pt_data->settings.date.month = date->month;
+	pt_data->settings.date.day = date->day;
+	return true;
+}
+
+bool pt_set_timezone_offset(double tz_offset)
+{
+	if (pt_data == NULL)
+	{
+		return false;
+	}
+	pt_data->settings.time_zone_offset = tz_offset;
+	return true;
+}
+
+// Get Methods
+
+pt_calc_method_e pt_get_calc_method(void)
+{
+	if (pt_data != NULL && pt_data->is_init == true)
+	{
+		return pt_data->settings.calc_method;
+	}
+	return PT_CM_ERROR;
+}
+
+pt_angles_t pt_get_angles(void)
+{
+	pt_angles_t angles = { 0 };
+	if (pt_data != NULL && pt_data->is_init == true)
+	{
+		return pt_data->settings.angles;
+	}
+	return angles;
+}
+
+pt_offsets_t pt_get_offsets(void)
+{
+	pt_offsets_t offsets = { 0 };
+	if (pt_data != NULL && pt_data->is_init == true)
+	{
+		return pt_data->settings.offsets;
+	}
+	return offsets;
+}
+
+pt_juristic_e pt_get_juristic_method(void)
+{
+	if (pt_data != NULL && pt_data->is_init == true)
+	{
+		return pt_data->settings.juristic;
+	}
+	return PT_J_ERROR;
+}
+
+pt_hl_method_e pt_get_hilat_method(void)
+{
+	if (pt_data != NULL && pt_data->is_init == true)
+	{
+		return pt_data->settings.hl_method;
+	}
+	return PT_HL_ERROR;
+}
+
+pt_midnight_method_e pt_get_midnight_method(void)
+{
+	if (pt_data != NULL && pt_data->is_init == true)
+	{
+		return pt_data->settings.md_method;
+	}
+	return PT_MD_ERROR;
+}
+
+pt_location_t pt_get_location(void)
+{
+	pt_location_t location = { 0 };
+	if (pt_data != NULL && pt_data->is_init == true)
+	{
+		return pt_data->settings.location;
+	}
+	return location;
+}
+
+pt_date_t pt_get_date(void)
+{
+	pt_date_t date = { 0 };
+	if (pt_data != NULL && pt_data->is_init == true)
+	{
+		return pt_data->settings.date;
+	}
+	return date;
+}
+
+double pt_get_timezone_offset(void)
+{
+	if (pt_data != NULL && pt_data->is_init == true)
+	{
+		return pt_data->settings.time_zone_offset;
+	}
+	return 0.0;
+}
+
+void pt_get_islamic_times(pt_islamic_time_t islamic_time)
+{
+	if (pt_data == NULL || pt_data->is_init == false)
+	{
+		return;
+	}
+	pt_calculate_pray_times(pt_data);
+	pt_double_to_time(pt_data->calc_data.times[PT_TIME_IMSAK], &islamic_time.imsak);
+	pt_double_to_time(pt_data->calc_data.times[PT_TIME_FAJR], &islamic_time.fajr);
+	pt_double_to_time(pt_data->calc_data.times[PT_TIME_SUNRISE], &islamic_time.sunrise);
+	pt_double_to_time(pt_data->calc_data.times[PT_TIME_MIDDAY], &islamic_time.midday);
+	pt_double_to_time(pt_data->calc_data.times[PT_TIME_DHUHR], &islamic_time.dhuhr);
+	pt_double_to_time(pt_data->calc_data.times[PT_TIME_ASR], &islamic_time.asr);
+	pt_double_to_time(pt_data->calc_data.times[PT_TIME_SUNSET], &islamic_time.sunset);
+	pt_double_to_time(pt_data->calc_data.times[PT_TIME_MAGHRIB], &islamic_time.maghrib);
+	pt_double_to_time(pt_data->calc_data.times[PT_TIME_ISHA], &islamic_time.isha);
+	pt_double_to_time(pt_data->calc_data.times[PT_TIME_MIDNIGHT], &islamic_time.midnight);
+	pt_double_to_time(pt_data->calc_data.times[PT_TIME_DAY], &islamic_time.day);
+	pt_double_to_time(pt_data->calc_data.times[PT_TIME_NIGHT], &islamic_time.night);
+}
+
+static void pt_calculate_pray_times(pt_data_t* pt_data)
 {
 	// Calculate Sum Position
-	Calculate_Sun_Position(PT_JDN(pray_times->System_Data.Date.Year, pray_times->System_Data.Date.Month, pray_times->System_Data.Date.Day, 0), pray_times);
+	pt_calculate_sun_position(pt_jdn(pt_data->settings.date.year, pt_data->settings.date.month, pt_data->settings.date.day, 0), pt_data);
 
 	// Calculate Mid Day
-	Calculate_Midday(pray_times);
+	pt_calculate_midday(pt_data);
 
 	// Calculate Duhur
-	Calculate_Duhur(pray_times);
+	pt_calculate_duhur(pt_data);
 
 	// Calculate Sunrise
-	Calculate_Sunrise(pray_times);
+	pt_calculate_sunrise(pt_data);
 
 	// Calculate Sunset
-	Calculate_Sunset(pray_times);
+	pt_calculate_sunset(pt_data);
 
 	// Calculate Day Time
-	Calculate_Day_Time(pray_times);
+	pt_calculate_day_time(pt_data);
 
 	// Calculate Night Time
-	Calculate_Night_Time(pray_times);
+	pt_calculate_night_time(pt_data);
 
 	// Calculate Fajr
-	Calculate_Fajr(pray_times);
+	pt_calculate_fajr(pt_data);
 
 	// Calculate Imsak
-	Calculate_Imsak(pray_times);
+	pt_calculate_imsak(pt_data);
 
 	// Calculate Asr
-	Calculate_Asr(pray_times);
+	pt_calculate_asr(pt_data);
 
 	// Maghrib
-	Calculate_Maghrib(pray_times);
+	pt_calculate_maghrib(pt_data);
 
 	// Calculate Isha
-	Calculate_Isha(pray_times);
+	pt_calculate_isha(pt_data);
 
 	// Calculate Midnight
-	Calculate_Midnight(pray_times);
+	pt_calculate_midnight(pt_data);
 
 	// Adjust Higher Latatiude
-	Adjust_Higher_Latitude(pray_times);
-
-	for (int time_index = 0; time_index < PT_TIME_TOTAL; time_index++)
-	{
-		PT_Double_To_Time(pray_times->Calc_Data.Times[time_index], &pray_times->Times[time_index].Hour, &pray_times->Times[time_index].Minute);
-	}
+	pt_adjust_higher_latitude(pt_data);
 }
 
-static void Calculate_Imsak(Pray_Times_t* pray_times)
+static void pt_calculate_imsak(pt_data_t* pt_data)
 {
 	int16_t offset = 0;
 	double angle = 0.0;
 	double imsak = 0.0;
 
-	offset = PT_Calc_Methods[pray_times->User_Data.Calc_Method].Offsets.Imsak;
-	offset += pray_times->User_Data.Offsets.Imsak;
+	offset = pt_data->settings.offsets.imsak;
 
-	if (pray_times->User_Data.Calc_Method == PT_CM_CUSTOM)
+	if (pt_data->settings.calc_method == PT_CM_CUSTOM)
 	{
-		angle = pray_times->User_Data.Angles.Imsak;
+		angle = pt_data->settings.angles.imsak;
 	}
 	else
 	{
-		angle = PT_Calc_Methods[pray_times->User_Data.Calc_Method].Angles.Imsak;
+		angle = pt_data->settings.angles.imsak;
 	}
 
 	if (angle > 0)
 	{
-		imsak = pray_times->Calc_Data.Times[PT_TIME_DHUHR] - Calculate_Sun_Angle_Time(angle, pray_times);
-		imsak += PT_Time_To_Double(0, offset);
+		imsak = pt_data->calc_data.times[PT_TIME_DHUHR] - pt_calculate_sun_angle_time(angle, pt_data);
+		imsak += pt_time_to_double(0, offset);
 	}
 	else
 	{
-		imsak = pray_times->Calc_Data.Times[PT_TIME_FAJR] - PT_Time_To_Double(0, offset);
+		imsak = pt_data->calc_data.times[PT_TIME_FAJR] - pt_time_to_double(0, offset);
 	}
 
-	pray_times->Calc_Data.Times[PT_TIME_IMSAK] = imsak;
+	pt_data->calc_data.times[PT_TIME_IMSAK] = imsak;
 }
 
-static void Calculate_Fajr(Pray_Times_t* pray_times)
+static void pt_calculate_fajr(pt_data_t* pt_data)
 {
 	int16_t offset = 0;
 	double angle = 0.0;
 	double fajr = 0.0;
 	
-	offset = PT_Calc_Methods[pray_times->User_Data.Calc_Method].Offsets.Fajr;
-	offset += pray_times->User_Data.Offsets.Fajr;
+	offset = pt_data->settings.offsets.fajr;
 
-	if (pray_times->User_Data.Calc_Method == PT_CM_CUSTOM)
+	if (pt_data->settings.calc_method == PT_CM_CUSTOM)
 	{
-		angle = pray_times->User_Data.Angles.Fajr;
+		angle = pt_data->settings.angles.fajr;
 	}
 	else
 	{
-		angle = PT_Calc_Methods[pray_times->User_Data.Calc_Method].Angles.Fajr;
+		angle = pt_data->settings.angles.fajr;
 	}
 
 	if (angle > 0)
 	{
-		fajr = pray_times->Calc_Data.Times[PT_TIME_DHUHR] - Calculate_Sun_Angle_Time(angle, pray_times);
+		fajr = pt_data->calc_data.times[PT_TIME_DHUHR] - pt_calculate_sun_angle_time(angle, pt_data);
 	}
 	else
 	{
-		fajr = pray_times->Calc_Data.Times[PT_TIME_SUNRISE];
+		fajr = pt_data->calc_data.times[PT_TIME_SUNRISE];
 	}
 	
-	fajr += PT_Time_To_Double(0, offset);
-	pray_times->Calc_Data.Times[PT_TIME_FAJR] = fajr;
+	fajr += pt_time_to_double(0, offset);
+	pt_data->calc_data.times[PT_TIME_FAJR] = fajr;
 }
 
-static void Calculate_Sunrise(Pray_Times_t* pray_times)
+static void pt_calculate_sunrise(pt_data_t* pt_data)
 {
 	int16_t offset = 0;
-	double angle = 0.833 + (0.0347 * sqrt(pray_times->User_Data.Location.Altitude));
+	double angle = 0.833 + (0.0347 * sqrt(pt_data->settings.location.altitude));
 	double sunrise = 0.0;
 
-	offset = PT_Calc_Methods[pray_times->User_Data.Calc_Method].Offsets.Sunrise;
-	offset += pray_times->User_Data.Offsets.Sunrise;
+	offset = pt_data->settings.offsets.sunrise;
 
-	sunrise = pray_times->Calc_Data.Times[PT_TIME_MIDDAY] - Calculate_Sun_Angle_Time(angle, pray_times);
-	sunrise += PT_Time_To_Double(0, offset);
-	pray_times->Calc_Data.Times[PT_TIME_SUNRISE] = sunrise;
+	sunrise = pt_data->calc_data.times[PT_TIME_MIDDAY] - pt_calculate_sun_angle_time(angle, pt_data);
+	sunrise += pt_time_to_double(0, offset);
+	pt_data->calc_data.times[PT_TIME_SUNRISE] = sunrise;
 }
 
-static void Calculate_Midday(Pray_Times_t* pray_times)
+static void pt_calculate_midday(pt_data_t* pt_data)
 {
-	pray_times->Calc_Data.Times[PT_TIME_MIDDAY] = PT_Fix_Hour(12.0 - pray_times->Calc_Data.Sun_Positin.EquationTime + (pray_times->System_Data.Time_Zone - (pray_times->User_Data.Location.Longitude / 15.0)));
+	pt_data->calc_data.times[PT_TIME_MIDDAY] = pt_fix_hour(12.0 - pt_data->calc_data.sun_positin.equation_time + (pt_data->settings.time_zone_offset - (pt_data->settings.location.longitude / 15.0)));
 }
 
-static void Calculate_Duhur(Pray_Times_t* pray_times)
+static void pt_calculate_duhur(pt_data_t* pt_data)
 {
 	int16_t offset = 0;
-	offset = PT_Calc_Methods[pray_times->User_Data.Calc_Method].Offsets.Duhur;
-	offset += pray_times->User_Data.Offsets.Duhur;
-	double duhur = pray_times->Calc_Data.Times[PT_TIME_MIDDAY] + PT_Time_To_Double(0, offset);
-	pray_times->Calc_Data.Times[PT_TIME_DHUHR] = duhur;
+	offset = pt_data->settings.offsets.duhur;
+	double duhur = pt_data->calc_data.times[PT_TIME_MIDDAY] + pt_time_to_double(0, offset);
+	pt_data->calc_data.times[PT_TIME_DHUHR] = duhur;
 }
 
-static void Calculate_Asr(Pray_Times_t* pray_times)
+static void pt_calculate_asr(pt_data_t* pt_data)
 {
 	int16_t offset = 0;
 	int factor = 0.0;
 	double asr = 0.0;
 	
-	offset = PT_Calc_Methods[pray_times->User_Data.Calc_Method].Offsets.Asr;
-	offset += pray_times->User_Data.Offsets.Asr;
+	offset = pt_data->settings.offsets.asr;
 
-	if (pray_times->User_Data.Juristic == PT_J_STANDARD)
+	if (pt_data->settings.juristic == PT_J_STANDARD)
 	{
 		factor = 1;
 	}
@@ -360,121 +598,118 @@ static void Calculate_Asr(Pray_Times_t* pray_times)
 	{
 		factor = 2;
 	}
-	asr = pray_times->Calc_Data.Times[PT_TIME_DHUHR] + Calculate_Asr_Angle_Time(factor, pray_times);
-	asr += PT_Time_To_Double(0, offset);
-	pray_times->Calc_Data.Times[PT_TIME_ASR] = asr;
+	asr = pt_data->calc_data.times[PT_TIME_DHUHR] + pt_calculate_asr_angle_time(factor, pt_data);
+	asr += pt_time_to_double(0, offset);
+	pt_data->calc_data.times[PT_TIME_ASR] = asr;
 }
 
-static void Calculate_Sunset(Pray_Times_t* pray_times)
+static void pt_calculate_sunset(pt_data_t* pt_data)
 {
 	int16_t offset = 0;
-	double angle = 0.833 + (0.0347 * sqrt(pray_times->User_Data.Location.Altitude));
+	double angle = 0.833 + (0.0347 * sqrt(pt_data->settings.location.altitude));
 	double sunset = 0.0;
 
-	offset = PT_Calc_Methods[pray_times->User_Data.Calc_Method].Offsets.Sunset;
-	offset += pray_times->User_Data.Offsets.Sunset;
+	offset = pt_data->settings.offsets.sunset;
 
-	sunset = pray_times->Calc_Data.Times[PT_TIME_MIDDAY] + Calculate_Sun_Angle_Time(angle, pray_times);
-	sunset += PT_Time_To_Double(0, offset);
-	pray_times->Calc_Data.Times[PT_TIME_SUNSET] = sunset;
+	sunset = pt_data->calc_data.times[PT_TIME_MIDDAY] + pt_calculate_sun_angle_time(angle, pt_data);
+	sunset += pt_time_to_double(0, offset);
+	pt_data->calc_data.times[PT_TIME_SUNSET] = sunset;
 }
 
-static void Calculate_Maghrib(Pray_Times_t* pray_times)
+static void pt_calculate_maghrib(pt_data_t* pt_data)
 {
 	int16_t offset = 0;
 	double angle = 0.0;
 	double maghrib = 0.0;
 
-	offset = PT_Calc_Methods[pray_times->User_Data.Calc_Method].Offsets.Maghrib;
-	offset += pray_times->User_Data.Offsets.Maghrib;
+	offset = pt_data->settings.offsets.maghrib;
 
-	if (pray_times->User_Data.Calc_Method == PT_CM_CUSTOM)
+	if (pt_data->settings.calc_method == PT_CM_CUSTOM)
 	{
-		angle = pray_times->User_Data.Angles.Maghrib;
+		angle = pt_data->settings.angles.maghrib;
 	}
 	else
 	{
-		angle = PT_Calc_Methods[pray_times->User_Data.Calc_Method].Angles.Maghrib;
+		angle = pt_data->settings.angles.maghrib;
 	}
 
 	if (angle > 0)
 	{
-		maghrib = pray_times->Calc_Data.Times[PT_TIME_DHUHR] + Calculate_Sun_Angle_Time(angle, pray_times);
+		maghrib = pt_data->calc_data.times[PT_TIME_DHUHR] + pt_calculate_sun_angle_time(angle, pt_data);
 	}
 	else
 	{
-		maghrib = pray_times->Calc_Data.Times[PT_TIME_SUNSET];
+		maghrib = pt_data->calc_data.times[PT_TIME_SUNSET];
 	}
 
-	maghrib += PT_Time_To_Double(0, offset);
-	pray_times->Calc_Data.Times[PT_TIME_MAGHRIB] = maghrib;
+	maghrib += pt_time_to_double(0, offset);
+	pt_data->calc_data.times[PT_TIME_MAGHRIB] = maghrib;
 }
 
-static void Calculate_Isha(Pray_Times_t* pray_times)
+static void pt_calculate_isha(pt_data_t* pt_data)
 {
 	int16_t offset = 0;
 	double angle = 0.0;
 	double isha = 0.0;
 
-	offset = PT_Calc_Methods[pray_times->User_Data.Calc_Method].Offsets.Isha;
-	offset += pray_times->User_Data.Offsets.Isha;
+	offset = pt_data->settings.offsets.isha;
 
-	if (pray_times->User_Data.Calc_Method == PT_CM_CUSTOM)
+	if (pt_data->settings.calc_method == PT_CM_CUSTOM)
 	{
-		angle = pray_times->User_Data.Angles.Isha;
+		angle = pt_data->settings.angles.isha;
 	}
 	else
 	{
-		angle = PT_Calc_Methods[pray_times->User_Data.Calc_Method].Angles.Isha;
+		angle = pt_data->settings.angles.isha;
 	}
 
 	if (angle > 0)
 	{
-		isha = pray_times->Calc_Data.Times[PT_TIME_DHUHR] + Calculate_Sun_Angle_Time(angle, pray_times);
+		isha = pt_data->calc_data.times[PT_TIME_DHUHR] + pt_calculate_sun_angle_time(angle, pt_data);
 	}
 	else
 	{
-		isha = pray_times->Calc_Data.Times[PT_TIME_MAGHRIB];
+		isha = pt_data->calc_data.times[PT_TIME_MAGHRIB];
 	}
 	
-	isha += PT_Time_To_Double(0, offset);
-	pray_times->Calc_Data.Times[PT_TIME_ISHA] = isha;
+	isha += pt_time_to_double(0, offset);
+	pt_data->calc_data.times[PT_TIME_ISHA] = isha;
 }
 
-static void Calculate_Midnight(Pray_Times_t* pray_times)
+static void pt_calculate_midnight(pt_data_t* pt_data)
 {
 	double midnight = 0.0;
-	if (pray_times->User_Data.MD_Method == PT_MD_STANDARD)
+	if (pt_data->settings.md_method == PT_MD_STANDARD)
 	{
-		midnight = pray_times->Calc_Data.Times[PT_TIME_SUNSET] + (PT_Time_Diff(pray_times->Calc_Data.Times[PT_TIME_SUNSET], pray_times->Calc_Data.Times[PT_TIME_SUNRISE]) / 2);
+		midnight = pt_data->calc_data.times[PT_TIME_SUNSET] + (pt_time_diff(pt_data->calc_data.times[PT_TIME_SUNSET], pt_data->calc_data.times[PT_TIME_SUNRISE]) / 2);
 	}
 	else
 	{
-		midnight = pray_times->Calc_Data.Times[PT_TIME_SUNSET] + (PT_Time_Diff(pray_times->Calc_Data.Times[PT_TIME_SUNSET], pray_times->Calc_Data.Times[PT_TIME_FAJR]) / 2);
+		midnight = pt_data->calc_data.times[PT_TIME_SUNSET] + (pt_time_diff(pt_data->calc_data.times[PT_TIME_SUNSET], pt_data->calc_data.times[PT_TIME_FAJR]) / 2);
 	}
 
-	pray_times->Calc_Data.Times[PT_TIME_MIDNIGHT] = midnight;
+	pt_data->calc_data.times[PT_TIME_MIDNIGHT] = midnight;
 }
 
-static void Calculate_Day_Time(Pray_Times_t* pray_times)
+static void pt_calculate_day_time(pt_data_t* pt_data)
 {
 	double Day_time = 0.0;
 
-	Day_time = PT_Time_Diff(pray_times->Calc_Data.Times[PT_TIME_SUNRISE], pray_times->Calc_Data.Times[PT_TIME_SUNSET]);
+	Day_time = pt_time_diff(pt_data->calc_data.times[PT_TIME_SUNRISE], pt_data->calc_data.times[PT_TIME_SUNSET]);
 
-	pray_times->Calc_Data.Times[PT_TIME_DAY] = Day_time;
+	pt_data->calc_data.times[PT_TIME_DAY] = Day_time;
 }
 
-static void Calculate_Night_Time(Pray_Times_t* pray_times)
+static void pt_calculate_night_time(pt_data_t* pt_data)
 {
 	double night_time = 0.0;
 	
-	night_time = PT_Time_Diff(pray_times->Calc_Data.Times[PT_TIME_SUNSET], pray_times->Calc_Data.Times[PT_TIME_SUNRISE]);
+	night_time = pt_time_diff(pt_data->calc_data.times[PT_TIME_SUNSET], pt_data->calc_data.times[PT_TIME_SUNRISE]);
 	
-	pray_times->Calc_Data.Times[PT_TIME_NIGHT] = night_time;
+	pt_data->calc_data.times[PT_TIME_NIGHT] = night_time;
 }
 
-static void Adjust_Higher_Latitude(Pray_Times_t* pray_times)
+static void pt_adjust_higher_latitude(pt_data_t* pt_data)
 {
 	double portion_imsak = 0.0;
 	double portion_fajr = 0.0;
@@ -482,155 +717,190 @@ static void Adjust_Higher_Latitude(Pray_Times_t* pray_times)
 	double portion_isha = 0.0;
 	double time_diff = 0.0;
 
-	if (pray_times->User_Data.HL_Method < PT_HL_NIGHTMIDDLE || pray_times->User_Data.HL_Method > PT_HL_ONESEVENTH)
+	if (pt_data->settings.hl_method < PT_HL_NIGHTMIDDLE || pt_data->settings.hl_method > PT_HL_ONESEVENTH)
 	{
 		return;
 	}
-	else if (pray_times->User_Data.HL_Method == PT_HL_NIGHTMIDDLE)
+	else if (pt_data->settings.hl_method == PT_HL_NIGHTMIDDLE)
 	{
-		portion_imsak = pray_times->Calc_Data.Times[PT_TIME_NIGHT] / 2;
-		portion_fajr = pray_times->Calc_Data.Times[PT_TIME_NIGHT] / 2;
-		portion_maghrib = pray_times->Calc_Data.Times[PT_TIME_NIGHT] / 2;
-		portion_isha = pray_times->Calc_Data.Times[PT_TIME_NIGHT] / 2;
+		portion_imsak = pt_data->calc_data.times[PT_TIME_NIGHT] / 2;
+		portion_fajr = pt_data->calc_data.times[PT_TIME_NIGHT] / 2;
+		portion_maghrib = pt_data->calc_data.times[PT_TIME_NIGHT] / 2;
+		portion_isha = pt_data->calc_data.times[PT_TIME_NIGHT] / 2;
 	}
-	else if (pray_times->User_Data.HL_Method == PT_HL_ANGLEBASED)
+	else if (pt_data->settings.hl_method == PT_HL_ANGLEBASED)
 	{
-		portion_imsak = Get_Method_Angle(pray_times, PT_TIME_IMSAK) * pray_times->Calc_Data.Times[PT_TIME_NIGHT] / 60;
-		portion_fajr = Get_Method_Angle(pray_times, PT_TIME_FAJR) * pray_times->Calc_Data.Times[PT_TIME_NIGHT] / 60;
-		portion_maghrib = Get_Method_Angle(pray_times, PT_TIME_MAGHRIB) * pray_times->Calc_Data.Times[PT_TIME_NIGHT] / 60;
-		portion_isha = Get_Method_Angle(pray_times, PT_TIME_ISHA) * pray_times->Calc_Data.Times[PT_TIME_NIGHT] / 60;
+		portion_imsak = pt_get_method_angle(pt_data, PT_TIME_IMSAK) * pt_data->calc_data.times[PT_TIME_NIGHT] / 60;
+		portion_fajr = pt_get_method_angle(pt_data, PT_TIME_FAJR) * pt_data->calc_data.times[PT_TIME_NIGHT] / 60;
+		portion_maghrib = pt_get_method_angle(pt_data, PT_TIME_MAGHRIB) * pt_data->calc_data.times[PT_TIME_NIGHT] / 60;
+		portion_isha = pt_get_method_angle(pt_data, PT_TIME_ISHA) * pt_data->calc_data.times[PT_TIME_NIGHT] / 60;
 	}
-	else if (pray_times->User_Data.HL_Method == PT_HL_ONESEVENTH)
+	else if (pt_data->settings.hl_method == PT_HL_ONESEVENTH)
 	{
-		portion_imsak = pray_times->Calc_Data.Times[PT_TIME_NIGHT] / 7;
-		portion_fajr = pray_times->Calc_Data.Times[PT_TIME_NIGHT] / 7;
-		portion_maghrib = pray_times->Calc_Data.Times[PT_TIME_NIGHT] / 7;
-		portion_isha = pray_times->Calc_Data.Times[PT_TIME_NIGHT] / 7;
+		portion_imsak = pt_data->calc_data.times[PT_TIME_NIGHT] / 7;
+		portion_fajr = pt_data->calc_data.times[PT_TIME_NIGHT] / 7;
+		portion_maghrib = pt_data->calc_data.times[PT_TIME_NIGHT] / 7;
+		portion_isha = pt_data->calc_data.times[PT_TIME_NIGHT] / 7;
 	}
 
-	time_diff = PT_Time_Diff(pray_times->Calc_Data.Times[PT_TIME_IMSAK], pray_times->Calc_Data.Times[PT_TIME_SUNRISE]);
+	time_diff = pt_time_diff(pt_data->calc_data.times[PT_TIME_IMSAK], pt_data->calc_data.times[PT_TIME_SUNRISE]);
 	if (time_diff > portion_imsak)
 	{
-		pray_times->Calc_Data.Times[PT_TIME_IMSAK] = pray_times->Calc_Data.Times[PT_TIME_SUNRISE] - portion_imsak;
+		pt_data->calc_data.times[PT_TIME_IMSAK] = pt_data->calc_data.times[PT_TIME_SUNRISE] - portion_imsak;
 	}
 
-	time_diff = PT_Time_Diff(pray_times->Calc_Data.Times[PT_TIME_FAJR], pray_times->Calc_Data.Times[PT_TIME_SUNRISE]);
+	time_diff = pt_time_diff(pt_data->calc_data.times[PT_TIME_FAJR], pt_data->calc_data.times[PT_TIME_SUNRISE]);
 	if (time_diff > portion_fajr)
 	{
-		pray_times->Calc_Data.Times[PT_TIME_FAJR] = pray_times->Calc_Data.Times[PT_TIME_SUNRISE] - portion_fajr;
+		pt_data->calc_data.times[PT_TIME_FAJR] = pt_data->calc_data.times[PT_TIME_SUNRISE] - portion_fajr;
 	}
 
-	time_diff = PT_Time_Diff(pray_times->Calc_Data.Times[PT_TIME_SUNSET], pray_times->Calc_Data.Times[PT_TIME_MAGHRIB]);
+	time_diff = pt_time_diff(pt_data->calc_data.times[PT_TIME_SUNSET], pt_data->calc_data.times[PT_TIME_MAGHRIB]);
 	if (time_diff > portion_maghrib)
 	{
-		pray_times->Calc_Data.Times[PT_TIME_MAGHRIB] = pray_times->Calc_Data.Times[PT_TIME_SUNSET] + portion_maghrib;
+		pt_data->calc_data.times[PT_TIME_MAGHRIB] = pt_data->calc_data.times[PT_TIME_SUNSET] + portion_maghrib;
 	}
 
-	time_diff = PT_Time_Diff(pray_times->Calc_Data.Times[PT_TIME_SUNSET], pray_times->Calc_Data.Times[PT_TIME_ISHA]);
+	time_diff = pt_time_diff(pt_data->calc_data.times[PT_TIME_SUNSET], pt_data->calc_data.times[PT_TIME_ISHA]);
 	if (time_diff > portion_isha)
 	{
-		pray_times->Calc_Data.Times[PT_TIME_ISHA] = pray_times->Calc_Data.Times[PT_TIME_SUNSET] + portion_isha;
+		pt_data->calc_data.times[PT_TIME_ISHA] = pt_data->calc_data.times[PT_TIME_SUNSET] + portion_isha;
 	}
 }
 
-static double Get_Method_Angle(Pray_Times_t* pray_times, PT_Time_e time)
+static double pt_get_method_angle(pt_data_t* pt_data, pt_time_e time)
 {
-	if (pray_times->User_Data.Calc_Method == PT_CM_CUSTOM)
+	if (pt_data->settings.calc_method == PT_CM_CUSTOM)
 	{
 		if (time == PT_TIME_IMSAK)
 		{
-			if (pray_times->User_Data.Angles.Imsak > 0)
+			if (pt_data->settings.angles.imsak > 0)
 			{
-				return pray_times->User_Data.Angles.Imsak;
+				return pt_data->settings.angles.imsak;
 			}
 			else
 			{
-				return Calculate_Sun_Time_Angle(pray_times->Calc_Data.Times[PT_TIME_IMSAK], pray_times);
+				return pt_calculate_sun_time_angle(pt_data->calc_data.times[PT_TIME_IMSAK], pt_data);
 			}
 		}
 		else if (time == PT_TIME_FAJR)
 		{
-			if (pray_times->User_Data.Angles.Fajr > 0)
+			if (pt_data->settings.angles.fajr > 0)
 			{
-				return pray_times->User_Data.Angles.Fajr;
+				return pt_data->settings.angles.fajr;
 			}
 			else
 			{
-				return Calculate_Sun_Time_Angle(pray_times->Calc_Data.Times[PT_TIME_FAJR], pray_times);
+				return pt_calculate_sun_time_angle(pt_data->calc_data.times[PT_TIME_FAJR], pt_data);
 			}
 		}
 		else if (time == PT_TIME_MAGHRIB)
 		{
-			if (pray_times->User_Data.Angles.Maghrib > 0)
+			if (pt_data->settings.angles.maghrib > 0)
 			{
-				return pray_times->User_Data.Angles.Maghrib;
+				return pt_data->settings.angles.maghrib;
 			}
 			else
 			{
-				return Calculate_Sun_Time_Angle(pray_times->Calc_Data.Times[PT_TIME_MAGHRIB], pray_times);
+				return pt_calculate_sun_time_angle(pt_data->calc_data.times[PT_TIME_MAGHRIB], pt_data);
 			}
 		}
 		else if (time == PT_TIME_ISHA)
 		{
-			if (pray_times->User_Data.Angles.Isha > 0)
+			if (pt_data->settings.angles.isha > 0)
 			{
-				return pray_times->User_Data.Angles.Isha;
+				return pt_data->settings.angles.isha;
 			}
 			else
 			{
-				return Calculate_Sun_Time_Angle(pray_times->Calc_Data.Times[PT_TIME_ISHA], pray_times);
+				return pt_calculate_sun_time_angle(pt_data->calc_data.times[PT_TIME_ISHA], pt_data);
 			}
 		}
 	}
 	else
 	{
-		if (pray_times->User_Data.Calc_Method < PT_CM_CUSTOM && pray_times->User_Data.Calc_Method >= PT_CM_ALGERIA_MOFA)
+		if (pt_data->settings.calc_method < PT_CM_CUSTOM && pt_data->settings.calc_method >= PT_CM_ALGERIA_MOFA)
 		{
 			if (time == PT_TIME_IMSAK)
 			{
-				if (PT_Calc_Methods[pray_times->User_Data.Calc_Method].Angles.Imsak > 0)
+				if (pt_data->settings.angles.imsak > 0)
 				{
-					return PT_Calc_Methods[pray_times->User_Data.Calc_Method].Angles.Imsak;
+					return pt_data->settings.angles.imsak;
 				}
 				else
 				{
-					return Calculate_Sun_Time_Angle(pray_times->Calc_Data.Times[PT_TIME_DHUHR] - pray_times->Calc_Data.Times[PT_TIME_IMSAK], pray_times);
+					return pt_calculate_sun_time_angle(pt_data->calc_data.times[PT_TIME_DHUHR] - pt_data->calc_data.times[PT_TIME_IMSAK], pt_data);
 				}
 			}
 			else if (time == PT_TIME_FAJR)
 			{
-				if (PT_Calc_Methods[pray_times->User_Data.Calc_Method].Angles.Fajr > 0)
+				if (pt_data->settings.angles.fajr > 0)
 				{
-					return PT_Calc_Methods[pray_times->User_Data.Calc_Method].Angles.Fajr;
+					return pt_data->settings.angles.fajr;
 				}
 				else
 				{
-					return Calculate_Sun_Time_Angle(pray_times->Calc_Data.Times[PT_TIME_DHUHR] - pray_times->Calc_Data.Times[PT_TIME_FAJR], pray_times);
+					return pt_calculate_sun_time_angle(pt_data->calc_data.times[PT_TIME_DHUHR] - pt_data->calc_data.times[PT_TIME_FAJR], pt_data);
 				}
 			}
 			else if (time == PT_TIME_MAGHRIB)
 			{
-				if (PT_Calc_Methods[pray_times->User_Data.Calc_Method].Angles.Maghrib > 0)
+				if (pt_data->settings.angles.maghrib > 0)
 				{
-					return PT_Calc_Methods[pray_times->User_Data.Calc_Method].Angles.Maghrib;
+					return pt_data->settings.angles.maghrib;
 				}
 				else
 				{
-					return Calculate_Sun_Time_Angle(pray_times->Calc_Data.Times[PT_TIME_MAGHRIB] - pray_times->Calc_Data.Times[PT_TIME_DHUHR], pray_times);
+					return pt_calculate_sun_time_angle(pt_data->calc_data.times[PT_TIME_MAGHRIB] - pt_data->calc_data.times[PT_TIME_DHUHR], pt_data);
 				}
 			}
 			else if (time == PT_TIME_ISHA)
 			{
-				if (PT_Calc_Methods[pray_times->User_Data.Calc_Method].Angles.Isha > 0)
+				if (pt_data->settings.angles.isha > 0)
 				{
-					return PT_Calc_Methods[pray_times->User_Data.Calc_Method].Angles.Isha;
+					return pt_data->settings.angles.isha;
 				}
 				else
 				{
-					return Calculate_Sun_Time_Angle(pray_times->Calc_Data.Times[PT_TIME_ISHA] - pray_times->Calc_Data.Times[PT_TIME_DHUHR], pray_times);
+					return pt_calculate_sun_time_angle(pt_data->calc_data.times[PT_TIME_ISHA] - pt_data->calc_data.times[PT_TIME_DHUHR], pt_data);
 				}
 			}
 		}
 	}
 	return 0.0;
+}
+
+static uint16_t pt_calculate_days_in_month(uint16_t* year, uint16_t* month)
+{
+	static const uint16_t days_in_month[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
+	if (*month < 1 || *month > 12)
+	{
+		return 0;
+	}
+
+	uint16_t days = days_in_month[*month - 1];
+	if (*month == 2 && ((*year % 4 == 0 && *year % 100 != 0) || (*year % 400 == 0)))
+	{
+		days = 29;
+	}
+
+	return days;
+}
+
+static bool pt_validate_date(pt_date_t* date)
+{
+	// http://praytimes.org/calculation
+	// The above two astronomical measures can be obtained accurately from The Star Almanac, or can be calculated approximately. 
+	// The following algorithm from U.S. Naval Observatory computes the Sun's angular coordinates to an accuracy of about 1 arcminute within two centuries of 2000.
+	if (date->year < 2000 || date->year > 2200)
+	{
+		return false;
+	}
+	uint16_t days = pt_calculate_days_in_month(&date->year, &date->month);
+	if (days == 0 || date->day<1 || date->day>days)
+	{
+		return false;
+	}
+	return true;
 }

@@ -1,4 +1,3 @@
-//#define _CRT_SECURE_NO_WARNINGS
 #include <Windows.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -6,9 +5,12 @@
 #include <time.h>
 #include "lvgl\lvgl.h"
 #include "LvglWindowsIconResource\LvglWindowsIconResource.h"
+#include "prayertimes/prayertimes.h"
+#include "prayer_times_ui.h"
 
 static lv_obj_t* scr_Main;
 
+static lv_style_t style_lbl_times = { 0 };
 
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nShowCmd)
 {
@@ -86,6 +88,11 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     lv_obj_set_style_text_color(scr_Main, lv_color_hex(0x000000), 0);
     lv_screen_load(scr_Main);
 
+    prayertimes_init();
+    pt_islamic_time_t islamic_time = { 0 };
+    pt_get_islamic_times(islamic_time);
+
+    prayer_times_ui();
 
     while (1)
     {
@@ -95,4 +102,16 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     }
 
     return 0;
+}
+
+void prayer_times_ui(void)
+{
+    lv_obj_t* obj_header = lv_obj_create(lv_screen_active());
+    lv_obj_set_size(obj_header, lv_pct(100), lv_pct(30));
+    lv_obj_set_style_bg_color(obj_header, lv_color_hex(0x999999), 0);
+}
+
+void style_init(void)
+{
+
 }

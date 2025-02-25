@@ -557,7 +557,7 @@
     <ClCompile Include="lvgl\src\widgets\win\lv_win.c" />
     <ClCompile Include="prayertimes\prayertimes.c" />
     <ClCompile Include="prayertimes\prayertimes_math.c" />
-    <ClCompile Include="test.c" />
+    <ClCompile Include="ui\prayer_times_ui.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LvglWindowsIconResource\LvglWindowsIconResource.h" />
@@ -1078,6 +1078,7 @@
     <ClInclude Include="lv_conf.h" />
     <ClInclude Include="prayertimes\prayertimes.h" />
     <ClInclude Include="prayertimes\prayertimes_math.h" />
+    <ClInclude Include="ui\prayer_times_ui.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LvglWindowsIconResource\LvglWindowsIconResource.rc" />
