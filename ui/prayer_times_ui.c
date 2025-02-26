@@ -7,10 +7,11 @@
 #include "LvglWindowsIconResource\LvglWindowsIconResource.h"
 #include "prayertimes/prayertimes.h"
 #include "prayer_times_ui.h"
+#include "scr_main.h"
+#include "scr_settings.h"
 
-static lv_obj_t* scr_Main;
-
-static lv_style_t style_lbl_times = { 0 };
+#define SCREEN_WIDTH 480
+#define SCREEN_HEIGHT 272
 
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nShowCmd)
 {
@@ -26,9 +27,9 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     bool allow_dpi_override = true;
     bool simulator_mode = true;
     lv_display_t* display = lv_windows_create_display(
-        L"Time Zone",
-        480,
-        272,
+        L"Prayer Times",
+        SCREEN_WIDTH,
+        SCREEN_HEIGHT,
         zoom_level,
         allow_dpi_override,
         simulator_mode);
@@ -83,11 +84,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     lv_theme_t* theme = lv_theme_default_init(display, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED), false, LV_FONT_DEFAULT);
     lv_disp_set_theme(display, theme);
 
-    scr_Main = lv_obj_create(NULL);
-    lv_obj_set_style_bg_color(scr_Main, lv_color_hex(0xFFFFFF), 0);
-    lv_obj_set_style_text_color(scr_Main, lv_color_hex(0x000000), 0);
-    lv_screen_load(scr_Main);
-
     prayertimes_init();
     pt_islamic_time_t islamic_time = { 0 };
     pt_get_islamic_times(islamic_time);
@@ -106,12 +102,16 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
 void prayer_times_ui(void)
 {
-    lv_obj_t* obj_header = lv_obj_create(lv_screen_active());
-    lv_obj_set_size(obj_header, lv_pct(100), lv_pct(30));
-    lv_obj_set_style_bg_color(obj_header, lv_color_hex(0x999999), 0);
+    scr_main_create_objects();
+    scr_main_style_init();
+    scr_main_style_add();
+    scr_main_init_objects();
+
+    scr_settings_create_objects();
+    scr_settings_style_init();
+    scr_settings_style_add();
+    scr_settings_init_objects();
+
+    lv_screen_load(scr_main);
 }
 
-void style_init(void)
-{
-
-}

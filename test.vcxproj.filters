@@ -1290,6 +1290,15 @@
     <ClCompile Include="ui\prayer_times_ui.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ui\scr_main.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\scr_settings.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\prayer_times_ui_events.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lv_conf.h">
@@ -2847,6 +2856,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ui\prayer_times_ui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\scr_main.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\scr_settings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\prayer_times_ui_events.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

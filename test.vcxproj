@@ -558,6 +558,9 @@
     <ClCompile Include="prayertimes\prayertimes.c" />
     <ClCompile Include="prayertimes\prayertimes_math.c" />
     <ClCompile Include="ui\prayer_times_ui.c" />
+    <ClCompile Include="ui\prayer_times_ui_events.c" />
+    <ClCompile Include="ui\scr_main.c" />
+    <ClCompile Include="ui\scr_settings.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LvglWindowsIconResource\LvglWindowsIconResource.h" />
@@ -1079,6 +1082,9 @@
     <ClInclude Include="prayertimes\prayertimes.h" />
     <ClInclude Include="prayertimes\prayertimes_math.h" />
     <ClInclude Include="ui\prayer_times_ui.h" />
+    <ClInclude Include="ui\prayer_times_ui_events.h" />
+    <ClInclude Include="ui\scr_main.h" />
+    <ClInclude Include="ui\scr_settings.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LvglWindowsIconResource\LvglWindowsIconResource.rc" />

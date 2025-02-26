@@ -8,7 +8,7 @@ extern "C"
 
 
     void prayer_times_ui(void);
-    void style_init(void);
+   
 
 #ifdef __cplusplus
 }
