@@ -137,14 +137,23 @@ void scr_main_style_init(void)
     lv_style_set_y(&style_obj_times, lv_pct(20));
     lv_style_set_pad_row(&style_obj_times, 5);
     lv_style_set_pad_column(&style_obj_times, 5);
+    lv_style_set_shadow_color(&style_obj_times, lv_color_hex(0x000000));
+    lv_style_set_shadow_offset_x(&style_obj_times, 0);
+    lv_style_set_shadow_offset_y(&style_obj_times, 0);
+    lv_style_set_shadow_width(&style_obj_times, 10);
+    lv_style_set_shadow_spread(&style_obj_times, 2);
+    lv_style_set_shadow_opa(&style_obj_times, LV_OPA_20);
 
     lv_style_set_size(&style_lbl_times_title, lv_pct(100), lv_pct(100));
     lv_style_set_text_align(&style_lbl_times_title, LV_TEXT_ALIGN_CENTER);
     lv_style_set_bg_color(&style_lbl_times_title, lv_color_hex(MAIN_LBL_TIMES_TITLE_BG_COLOR));
     lv_style_set_bg_opa(&style_lbl_times_title, LV_OPA_100);
     lv_style_set_radius(&style_lbl_times_title, 5);
-    lv_style_set_pad_top(&style_lbl_times_title, 5);
+    lv_style_set_pad_top(&style_lbl_times_title, 3);
     lv_style_set_text_font(&style_lbl_times_title, &lv_font_montserrat_14);
+    lv_style_set_border_color(&style_lbl_times_title, lv_color_hex(MAIN_SCREEN_BG_COLOR));
+    lv_style_set_border_width(&style_lbl_times_title, 2);
+    lv_style_set_border_side(&style_lbl_times_title, LV_BORDER_SIDE_FULL);
 
     lv_style_set_size(&style_lbl_times_hour, lv_pct(100), lv_pct(100));
     lv_style_set_text_align(&style_lbl_times_hour, LV_TEXT_ALIGN_CENTER);
@@ -152,7 +161,7 @@ void scr_main_style_init(void)
     lv_style_set_bg_opa(&style_lbl_times_hour, LV_OPA_100);
     lv_style_set_radius(&style_lbl_times_hour, 5);
     lv_style_set_pad_top(&style_lbl_times_hour, 5);
-    lv_style_set_text_font(&style_lbl_times_hour, &lv_font_montserrat_14);
+    lv_style_set_text_font(&style_lbl_times_hour, &lv_font_montserrat_12);
     //lv_style_set_bg_opa(&style_lbl_times_hour, LV_OPA_50);
 }
 
@@ -195,45 +204,45 @@ void scr_main_init_objects(void)
     lv_label_set_text(lbl_settings, LV_SYMBOL_SETTINGS);
     lv_obj_add_event_cb(btn_settings, scr_main_btn_settings_event, LV_EVENT_CLICKED, NULL);
 
-    lv_label_set_text(lbl_information, "Prayer Times 2025-02-26 Tehran");
+    lv_label_set_text_static(lbl_information, "Prayer Times 2025-02-26 Tehran");
 
     //lv_obj_set_scrollbar_mode(obj_times, LV_SCROLLBAR_MODE_OFF);
     lv_obj_set_grid_dsc_array(obj_times, obj_times_col_dsc, obj_times_row_dsc);
 
-    lv_label_set_text(lbl_times_imsak_title, "IMSAK");
+    lv_label_set_text_static(lbl_times_imsak_title, "IMSAK");
     lv_obj_set_grid_cell(lbl_times_imsak_title, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
 
-    lv_label_set_text(lbl_times_fajr_title, "FAJR");
+    lv_label_set_text_static(lbl_times_fajr_title, "FAJR");
     lv_obj_set_grid_cell(lbl_times_fajr_title, LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
 
-    lv_label_set_text(lbl_times_sunrise_title, "SUNRISE");
+    lv_label_set_text_static(lbl_times_sunrise_title, "SUNRISE");
     lv_obj_set_grid_cell(lbl_times_sunrise_title, LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
 
-    lv_label_set_text(lbl_times_midday_title, "MIDDAY");
+    lv_label_set_text_static(lbl_times_midday_title, "MIDDAY");
     lv_obj_set_grid_cell(lbl_times_midday_title, LV_GRID_ALIGN_STRETCH, 3, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
 
-    lv_label_set_text(lbl_times_duhur_title, "DUHUR");
+    lv_label_set_text_static(lbl_times_duhur_title, "DUHUR");
     lv_obj_set_grid_cell(lbl_times_duhur_title, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 2, 1);
 
-    lv_label_set_text(lbl_times_asr_title, "ASR");
+    lv_label_set_text_static(lbl_times_asr_title, "ASR");
     lv_obj_set_grid_cell(lbl_times_asr_title, LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 2, 1);
 
-    lv_label_set_text(lbl_times_sunset_title, "SUNSET");
+    lv_label_set_text_static(lbl_times_sunset_title, "SUNSET");
     lv_obj_set_grid_cell(lbl_times_sunset_title, LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_STRETCH, 2, 1);
 
-    lv_label_set_text(lbl_times_maghrib_title, "MAGHRIB");
+    lv_label_set_text_static(lbl_times_maghrib_title, "MAGHRIB");
     lv_obj_set_grid_cell(lbl_times_maghrib_title, LV_GRID_ALIGN_STRETCH, 3, 1, LV_GRID_ALIGN_STRETCH, 2, 1);
 
-    lv_label_set_text(lbl_times_isha_title, "ISHA");
+    lv_label_set_text_static(lbl_times_isha_title, "ISHA");
     lv_obj_set_grid_cell(lbl_times_isha_title, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 4, 1);
 
-    lv_label_set_text(lbl_times_midnight_title, "MIDNIGHT");
+    lv_label_set_text_static(lbl_times_midnight_title, "MIDNIGHT");
     lv_obj_set_grid_cell(lbl_times_midnight_title, LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 4, 1);
 
-    lv_label_set_text(lbl_times_day_title, "DAY");
+    lv_label_set_text_static(lbl_times_day_title, "DAY");
     lv_obj_set_grid_cell(lbl_times_day_title, LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_STRETCH, 4, 1);
 
-    lv_label_set_text(lbl_times_night_title, "NIGHT");
+    lv_label_set_text_static(lbl_times_night_title, "NIGHT");
     lv_obj_set_grid_cell(lbl_times_night_title, LV_GRID_ALIGN_STRETCH, 3, 1, LV_GRID_ALIGN_STRETCH, 4, 1);
 
 
