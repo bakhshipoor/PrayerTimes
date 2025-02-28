@@ -2867,6 +2867,9 @@
     <ClInclude Include="ui\prayer_times_ui_events.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ui\prayer_times_ui_texts.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LvglWindowsIconResource\LvglWindowsIconResource.rc">

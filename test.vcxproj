@@ -1083,6 +1083,7 @@
     <ClInclude Include="prayertimes\prayertimes_math.h" />
     <ClInclude Include="ui\prayer_times_ui.h" />
     <ClInclude Include="ui\prayer_times_ui_events.h" />
+    <ClInclude Include="ui\prayer_times_ui_texts.h" />
     <ClInclude Include="ui\scr_main.h" />
     <ClInclude Include="ui\scr_settings.h" />
   </ItemGroup>

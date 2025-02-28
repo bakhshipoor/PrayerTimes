@@ -1,5 +1,6 @@
 #include "scr_main.h"
 #include "prayer_times_ui_events.h"
+#include "prayer_times_ui_texts.h"
 
 static const int32_t obj_times_row_dsc[] = { LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST };
 static const int32_t obj_times_col_dsc[] = { LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST };
@@ -204,82 +205,82 @@ void scr_main_init_objects(void)
     lv_label_set_text(lbl_settings, LV_SYMBOL_SETTINGS);
     lv_obj_add_event_cb(btn_settings, scr_main_btn_settings_event, LV_EVENT_CLICKED, NULL);
 
-    lv_label_set_text_static(lbl_information, "Prayer Times 2025-02-26 Tehran");
+    lv_label_set_text_static(lbl_information, SCR_MAIN_LBL_HEADER_TITLE);
 
     //lv_obj_set_scrollbar_mode(obj_times, LV_SCROLLBAR_MODE_OFF);
     lv_obj_set_grid_dsc_array(obj_times, obj_times_col_dsc, obj_times_row_dsc);
 
-    lv_label_set_text_static(lbl_times_imsak_title, "IMSAK");
+    lv_label_set_text_static(lbl_times_imsak_title, SCR_MAIN_LBL_TIMES_IMSAK_TITLE);
     lv_obj_set_grid_cell(lbl_times_imsak_title, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
 
-    lv_label_set_text_static(lbl_times_fajr_title, "FAJR");
+    lv_label_set_text_static(lbl_times_fajr_title, SCR_MAIN_LBL_TIMES_FAJR_TITLE);
     lv_obj_set_grid_cell(lbl_times_fajr_title, LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
 
-    lv_label_set_text_static(lbl_times_sunrise_title, "SUNRISE");
+    lv_label_set_text_static(lbl_times_sunrise_title, SCR_MAIN_LBL_TIMES_SUNRISE_TITLE);
     lv_obj_set_grid_cell(lbl_times_sunrise_title, LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
 
-    lv_label_set_text_static(lbl_times_midday_title, "MIDDAY");
+    lv_label_set_text_static(lbl_times_midday_title, SCR_MAIN_LBL_TIMES_MIDDAY_TITLE);
     lv_obj_set_grid_cell(lbl_times_midday_title, LV_GRID_ALIGN_STRETCH, 3, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
 
-    lv_label_set_text_static(lbl_times_duhur_title, "DUHUR");
+    lv_label_set_text_static(lbl_times_duhur_title, SCR_MAIN_LBL_TIMES_DUHUR_TITLE);
     lv_obj_set_grid_cell(lbl_times_duhur_title, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 2, 1);
 
-    lv_label_set_text_static(lbl_times_asr_title, "ASR");
+    lv_label_set_text_static(lbl_times_asr_title, SCR_MAIN_LBL_TIMES_ASR_TITLE);
     lv_obj_set_grid_cell(lbl_times_asr_title, LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 2, 1);
 
-    lv_label_set_text_static(lbl_times_sunset_title, "SUNSET");
+    lv_label_set_text_static(lbl_times_sunset_title, SCR_MAIN_LBL_TIMES_SUNSET_TITLE);
     lv_obj_set_grid_cell(lbl_times_sunset_title, LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_STRETCH, 2, 1);
 
-    lv_label_set_text_static(lbl_times_maghrib_title, "MAGHRIB");
+    lv_label_set_text_static(lbl_times_maghrib_title, SCR_MAIN_LBL_TIMES_MAGHRIB_TITLE);
     lv_obj_set_grid_cell(lbl_times_maghrib_title, LV_GRID_ALIGN_STRETCH, 3, 1, LV_GRID_ALIGN_STRETCH, 2, 1);
 
-    lv_label_set_text_static(lbl_times_isha_title, "ISHA");
+    lv_label_set_text_static(lbl_times_isha_title, SCR_MAIN_LBL_TIMES_ISHA_TITLE);
     lv_obj_set_grid_cell(lbl_times_isha_title, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 4, 1);
 
-    lv_label_set_text_static(lbl_times_midnight_title, "MIDNIGHT");
+    lv_label_set_text_static(lbl_times_midnight_title, SCR_MAIN_LBL_TIMES_MIDNIGHT_TITLE);
     lv_obj_set_grid_cell(lbl_times_midnight_title, LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 4, 1);
 
-    lv_label_set_text_static(lbl_times_day_title, "DAY");
+    lv_label_set_text_static(lbl_times_day_title, SCR_MAIN_LBL_TIMES_DAY_TITLE);
     lv_obj_set_grid_cell(lbl_times_day_title, LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_STRETCH, 4, 1);
 
-    lv_label_set_text_static(lbl_times_night_title, "NIGHT");
+    lv_label_set_text_static(lbl_times_night_title, SCR_MAIN_LBL_TIMES_NIGHT_TITLE);
     lv_obj_set_grid_cell(lbl_times_night_title, LV_GRID_ALIGN_STRETCH, 3, 1, LV_GRID_ALIGN_STRETCH, 4, 1);
 
 
 
-    lv_label_set_text(lbl_times_imsak_hour, "00:00:00");
+    lv_label_set_text(lbl_times_imsak_hour, SCR_MAIN_LBL_TIMES_HOUR_VALUE);
     lv_obj_set_grid_cell(lbl_times_imsak_hour, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 1, 1);
 
-    lv_label_set_text(lbl_times_fajr_hour, "00:00:00");
+    lv_label_set_text(lbl_times_fajr_hour, SCR_MAIN_LBL_TIMES_HOUR_VALUE);
     lv_obj_set_grid_cell(lbl_times_fajr_hour, LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 1, 1);
 
-    lv_label_set_text(lbl_times_sunrise_hour, "00:00:00");
+    lv_label_set_text(lbl_times_sunrise_hour, SCR_MAIN_LBL_TIMES_HOUR_VALUE);
     lv_obj_set_grid_cell(lbl_times_sunrise_hour, LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_STRETCH, 1, 1);
 
-    lv_label_set_text(lbl_times_midday_hour, "00:00:00");
+    lv_label_set_text(lbl_times_midday_hour, SCR_MAIN_LBL_TIMES_HOUR_VALUE);
     lv_obj_set_grid_cell(lbl_times_midday_hour, LV_GRID_ALIGN_STRETCH, 3, 1, LV_GRID_ALIGN_STRETCH, 1, 1);
 
-    lv_label_set_text(lbl_times_duhur_hour, "00:00:00");
+    lv_label_set_text(lbl_times_duhur_hour, SCR_MAIN_LBL_TIMES_HOUR_VALUE);
     lv_obj_set_grid_cell(lbl_times_duhur_hour, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 3, 1);
 
-    lv_label_set_text(lbl_times_asr_hour, "00:00:00");
+    lv_label_set_text(lbl_times_asr_hour, SCR_MAIN_LBL_TIMES_HOUR_VALUE);
     lv_obj_set_grid_cell(lbl_times_asr_hour, LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 3, 1);
 
-    lv_label_set_text(lbl_times_sunset_hour, "00:00:00");
+    lv_label_set_text(lbl_times_sunset_hour, SCR_MAIN_LBL_TIMES_HOUR_VALUE);
     lv_obj_set_grid_cell(lbl_times_sunset_hour, LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_STRETCH, 3, 1);
 
-    lv_label_set_text(lbl_times_maghrib_hour, "00:00:00");
+    lv_label_set_text(lbl_times_maghrib_hour, SCR_MAIN_LBL_TIMES_HOUR_VALUE);
     lv_obj_set_grid_cell(lbl_times_maghrib_hour, LV_GRID_ALIGN_STRETCH, 3, 1, LV_GRID_ALIGN_STRETCH, 3, 1);
 
-    lv_label_set_text(lbl_times_isha_hour, "00:00:00");
+    lv_label_set_text(lbl_times_isha_hour, SCR_MAIN_LBL_TIMES_HOUR_VALUE);
     lv_obj_set_grid_cell(lbl_times_isha_hour, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 5, 1);
 
-    lv_label_set_text(lbl_times_midnight_hour, "00:00:00");
+    lv_label_set_text(lbl_times_midnight_hour, SCR_MAIN_LBL_TIMES_HOUR_VALUE);
     lv_obj_set_grid_cell(lbl_times_midnight_hour, LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 5, 1);
 
-    lv_label_set_text(lbl_times_day_hour, "00:00:00");
+    lv_label_set_text(lbl_times_day_hour, SCR_MAIN_LBL_TIMES_HOUR_VALUE);
     lv_obj_set_grid_cell(lbl_times_day_hour, LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_STRETCH, 5, 1);
 
-    lv_label_set_text(lbl_times_night_hour, "00:00:00");
+    lv_label_set_text(lbl_times_night_hour, SCR_MAIN_LBL_TIMES_HOUR_VALUE);
     lv_obj_set_grid_cell(lbl_times_night_hour, LV_GRID_ALIGN_STRETCH, 3, 1, LV_GRID_ALIGN_STRETCH, 5, 1);
 }
