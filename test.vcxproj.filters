@@ -1299,6 +1299,9 @@
     <ClCompile Include="ui\prayer_times_ui_events.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ui\prayer_times_ui_update.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lv_conf.h">
@@ -2868,6 +2871,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ui\prayer_times_ui_texts.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\prayer_times_ui_update.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

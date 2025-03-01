@@ -5,10 +5,13 @@
 #include <time.h>
 #include "lvgl\lvgl.h"
 #include "LvglWindowsIconResource\LvglWindowsIconResource.h"
-#include "prayertimes/prayertimes.h"
 #include "prayer_times_ui.h"
 #include "scr_main.h"
 #include "scr_settings.h"
+#include "prayer_times_ui_texts.h"
+#include "prayer_times_ui_update.h"
+
+#ifdef _WIN32
 
 #define SCREEN_WIDTH 480
 #define SCREEN_HEIGHT 272
@@ -84,21 +87,18 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     lv_theme_t* theme = lv_theme_default_init(display, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED), false, LV_FONT_DEFAULT);
     lv_disp_set_theme(display, theme);
 
-    prayertimes_init();
-    pt_islamic_time_t islamic_time = { 0 };
-    pt_get_islamic_times(islamic_time);
-
     prayer_times_ui();
 
     while (1)
     {
         lv_task_handler();
         lv_delay_ms(5);
-
     }
 
     return 0;
 }
+
+#endif
 
 void prayer_times_ui(void)
 {
@@ -111,6 +111,8 @@ void prayer_times_ui(void)
     scr_settings_style_init();
     scr_settings_style_add();
     scr_settings_init_objects();
+
+    pt_ui_update_initial();
 
     lv_screen_load(scr_main);
 }

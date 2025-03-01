@@ -203,7 +203,7 @@ bool prayertimes_init(void)
 	pt_location_t location = { .latitude = 35.6892, .longitude = 51.3890, .altitude = 0 };
 	pt_set_location(&location);
 	// Set Date
-	pt_date_t date = { .year = 2025, .month = 2, .day = 25 };
+	pt_date_t date = { .year = 2025, .month = 1, .day = 1 };
 	pt_set_date(&date);
 	// Set Time Zone Offset
 	pt_set_timezone_offset(3.5);
@@ -226,8 +226,8 @@ bool pt_set_calc_method(pt_calc_method_e calc_method)
 	pt_data->settings.calc_method = calc_method;
 	if (calc_method != PT_CM_CUSTOM)
 	{
-		pt_set_angles(&pt_calc_methods[PT_CM_IRAN_TEHRAN].angles);
-		pt_set_offsets(&pt_calc_methods[PT_CM_IRAN_TEHRAN].offsets);
+		pt_set_angles(&pt_calc_methods[calc_method].angles);
+		pt_set_offsets(&pt_calc_methods[calc_method].offsets);
 	}
 	return true;
 }
@@ -430,25 +430,25 @@ double pt_get_timezone_offset(void)
 	return 0.0;
 }
 
-void pt_get_islamic_times(pt_islamic_time_t islamic_time)
+void pt_get_islamic_times(pt_islamic_time_t* islamic_time)
 {
 	if (pt_data == NULL || pt_data->is_init == false)
 	{
 		return;
 	}
 	pt_calculate_pray_times(pt_data);
-	pt_double_to_time(pt_data->calc_data.times[PT_TIME_IMSAK], &islamic_time.imsak);
-	pt_double_to_time(pt_data->calc_data.times[PT_TIME_FAJR], &islamic_time.fajr);
-	pt_double_to_time(pt_data->calc_data.times[PT_TIME_SUNRISE], &islamic_time.sunrise);
-	pt_double_to_time(pt_data->calc_data.times[PT_TIME_MIDDAY], &islamic_time.midday);
-	pt_double_to_time(pt_data->calc_data.times[PT_TIME_DHUHR], &islamic_time.dhuhr);
-	pt_double_to_time(pt_data->calc_data.times[PT_TIME_ASR], &islamic_time.asr);
-	pt_double_to_time(pt_data->calc_data.times[PT_TIME_SUNSET], &islamic_time.sunset);
-	pt_double_to_time(pt_data->calc_data.times[PT_TIME_MAGHRIB], &islamic_time.maghrib);
-	pt_double_to_time(pt_data->calc_data.times[PT_TIME_ISHA], &islamic_time.isha);
-	pt_double_to_time(pt_data->calc_data.times[PT_TIME_MIDNIGHT], &islamic_time.midnight);
-	pt_double_to_time(pt_data->calc_data.times[PT_TIME_DAY], &islamic_time.day);
-	pt_double_to_time(pt_data->calc_data.times[PT_TIME_NIGHT], &islamic_time.night);
+	pt_double_to_time(pt_data->calc_data.times[PT_TIME_IMSAK], &islamic_time->imsak);
+	pt_double_to_time(pt_data->calc_data.times[PT_TIME_FAJR], &islamic_time->fajr);
+	pt_double_to_time(pt_data->calc_data.times[PT_TIME_SUNRISE], &islamic_time->sunrise);
+	pt_double_to_time(pt_data->calc_data.times[PT_TIME_MIDDAY], &islamic_time->midday);
+	pt_double_to_time(pt_data->calc_data.times[PT_TIME_DHUHR], &islamic_time->dhuhr);
+	pt_double_to_time(pt_data->calc_data.times[PT_TIME_ASR], &islamic_time->asr);
+	pt_double_to_time(pt_data->calc_data.times[PT_TIME_SUNSET], &islamic_time->sunset);
+	pt_double_to_time(pt_data->calc_data.times[PT_TIME_MAGHRIB], &islamic_time->maghrib);
+	pt_double_to_time(pt_data->calc_data.times[PT_TIME_ISHA], &islamic_time->isha);
+	pt_double_to_time(pt_data->calc_data.times[PT_TIME_MIDNIGHT], &islamic_time->midnight);
+	pt_double_to_time(pt_data->calc_data.times[PT_TIME_DAY], &islamic_time->day);
+	pt_double_to_time(pt_data->calc_data.times[PT_TIME_NIGHT], &islamic_time->night);
 }
 
 static void pt_calculate_pray_times(pt_data_t* pt_data)
@@ -523,7 +523,7 @@ static void pt_calculate_imsak(pt_data_t* pt_data)
 		imsak = pt_data->calc_data.times[PT_TIME_FAJR] - pt_time_to_double(0, offset);
 	}
 
-	pt_data->calc_data.times[PT_TIME_IMSAK] = imsak;
+	pt_data->calc_data.times[PT_TIME_IMSAK] = pt_fix_hour(imsak);
 }
 
 static void pt_calculate_fajr(pt_data_t* pt_data)
@@ -553,7 +553,7 @@ static void pt_calculate_fajr(pt_data_t* pt_data)
 	}
 	
 	fajr += pt_time_to_double(0, offset);
-	pt_data->calc_data.times[PT_TIME_FAJR] = fajr;
+	pt_data->calc_data.times[PT_TIME_FAJR] = pt_fix_hour(fajr);
 }
 
 static void pt_calculate_sunrise(pt_data_t* pt_data)
@@ -566,7 +566,7 @@ static void pt_calculate_sunrise(pt_data_t* pt_data)
 
 	sunrise = pt_data->calc_data.times[PT_TIME_MIDDAY] - pt_calculate_sun_angle_time(angle, pt_data);
 	sunrise += pt_time_to_double(0, offset);
-	pt_data->calc_data.times[PT_TIME_SUNRISE] = sunrise;
+	pt_data->calc_data.times[PT_TIME_SUNRISE] = pt_fix_hour(sunrise);
 }
 
 static void pt_calculate_midday(pt_data_t* pt_data)
@@ -579,7 +579,7 @@ static void pt_calculate_duhur(pt_data_t* pt_data)
 	int16_t offset = 0;
 	offset = pt_data->settings.offsets.duhur;
 	double duhur = pt_data->calc_data.times[PT_TIME_MIDDAY] + pt_time_to_double(0, offset);
-	pt_data->calc_data.times[PT_TIME_DHUHR] = duhur;
+	pt_data->calc_data.times[PT_TIME_DHUHR] = pt_fix_hour(duhur);
 }
 
 static void pt_calculate_asr(pt_data_t* pt_data)
@@ -600,7 +600,7 @@ static void pt_calculate_asr(pt_data_t* pt_data)
 	}
 	asr = pt_data->calc_data.times[PT_TIME_DHUHR] + pt_calculate_asr_angle_time(factor, pt_data);
 	asr += pt_time_to_double(0, offset);
-	pt_data->calc_data.times[PT_TIME_ASR] = asr;
+	pt_data->calc_data.times[PT_TIME_ASR] = pt_fix_hour(asr);
 }
 
 static void pt_calculate_sunset(pt_data_t* pt_data)
@@ -613,7 +613,7 @@ static void pt_calculate_sunset(pt_data_t* pt_data)
 
 	sunset = pt_data->calc_data.times[PT_TIME_MIDDAY] + pt_calculate_sun_angle_time(angle, pt_data);
 	sunset += pt_time_to_double(0, offset);
-	pt_data->calc_data.times[PT_TIME_SUNSET] = sunset;
+	pt_data->calc_data.times[PT_TIME_SUNSET] = pt_fix_hour(sunset);
 }
 
 static void pt_calculate_maghrib(pt_data_t* pt_data)
@@ -643,7 +643,7 @@ static void pt_calculate_maghrib(pt_data_t* pt_data)
 	}
 
 	maghrib += pt_time_to_double(0, offset);
-	pt_data->calc_data.times[PT_TIME_MAGHRIB] = maghrib;
+	pt_data->calc_data.times[PT_TIME_MAGHRIB] = pt_fix_hour(maghrib);
 }
 
 static void pt_calculate_isha(pt_data_t* pt_data)
@@ -673,7 +673,7 @@ static void pt_calculate_isha(pt_data_t* pt_data)
 	}
 	
 	isha += pt_time_to_double(0, offset);
-	pt_data->calc_data.times[PT_TIME_ISHA] = isha;
+	pt_data->calc_data.times[PT_TIME_ISHA] = pt_fix_hour(isha);
 }
 
 static void pt_calculate_midnight(pt_data_t* pt_data)
@@ -688,7 +688,7 @@ static void pt_calculate_midnight(pt_data_t* pt_data)
 		midnight = pt_data->calc_data.times[PT_TIME_SUNSET] + (pt_time_diff(pt_data->calc_data.times[PT_TIME_SUNSET], pt_data->calc_data.times[PT_TIME_FAJR]) / 2);
 	}
 
-	pt_data->calc_data.times[PT_TIME_MIDNIGHT] = midnight;
+	pt_data->calc_data.times[PT_TIME_MIDNIGHT] = pt_fix_hour(midnight);
 }
 
 static void pt_calculate_day_time(pt_data_t* pt_data)
@@ -697,7 +697,7 @@ static void pt_calculate_day_time(pt_data_t* pt_data)
 
 	Day_time = pt_time_diff(pt_data->calc_data.times[PT_TIME_SUNRISE], pt_data->calc_data.times[PT_TIME_SUNSET]);
 
-	pt_data->calc_data.times[PT_TIME_DAY] = Day_time;
+	pt_data->calc_data.times[PT_TIME_DAY] = pt_fix_hour(Day_time);
 }
 
 static void pt_calculate_night_time(pt_data_t* pt_data)
@@ -706,7 +706,7 @@ static void pt_calculate_night_time(pt_data_t* pt_data)
 	
 	night_time = pt_time_diff(pt_data->calc_data.times[PT_TIME_SUNSET], pt_data->calc_data.times[PT_TIME_SUNRISE]);
 	
-	pt_data->calc_data.times[PT_TIME_NIGHT] = night_time;
+	pt_data->calc_data.times[PT_TIME_NIGHT] = pt_fix_hour(night_time);
 }
 
 static void pt_adjust_higher_latitude(pt_data_t* pt_data)
@@ -746,25 +746,25 @@ static void pt_adjust_higher_latitude(pt_data_t* pt_data)
 	time_diff = pt_time_diff(pt_data->calc_data.times[PT_TIME_IMSAK], pt_data->calc_data.times[PT_TIME_SUNRISE]);
 	if (time_diff > portion_imsak)
 	{
-		pt_data->calc_data.times[PT_TIME_IMSAK] = pt_data->calc_data.times[PT_TIME_SUNRISE] - portion_imsak;
+		pt_data->calc_data.times[PT_TIME_IMSAK] = pt_fix_hour(pt_data->calc_data.times[PT_TIME_SUNRISE] - portion_imsak);
 	}
 
 	time_diff = pt_time_diff(pt_data->calc_data.times[PT_TIME_FAJR], pt_data->calc_data.times[PT_TIME_SUNRISE]);
 	if (time_diff > portion_fajr)
 	{
-		pt_data->calc_data.times[PT_TIME_FAJR] = pt_data->calc_data.times[PT_TIME_SUNRISE] - portion_fajr;
+		pt_data->calc_data.times[PT_TIME_FAJR] = pt_fix_hour(pt_data->calc_data.times[PT_TIME_SUNRISE] - portion_fajr);
 	}
 
 	time_diff = pt_time_diff(pt_data->calc_data.times[PT_TIME_SUNSET], pt_data->calc_data.times[PT_TIME_MAGHRIB]);
 	if (time_diff > portion_maghrib)
 	{
-		pt_data->calc_data.times[PT_TIME_MAGHRIB] = pt_data->calc_data.times[PT_TIME_SUNSET] + portion_maghrib;
+		pt_data->calc_data.times[PT_TIME_MAGHRIB] = pt_fix_hour(pt_data->calc_data.times[PT_TIME_SUNSET] + portion_maghrib);
 	}
 
 	time_diff = pt_time_diff(pt_data->calc_data.times[PT_TIME_SUNSET], pt_data->calc_data.times[PT_TIME_ISHA]);
 	if (time_diff > portion_isha)
 	{
-		pt_data->calc_data.times[PT_TIME_ISHA] = pt_data->calc_data.times[PT_TIME_SUNSET] + portion_isha;
+		pt_data->calc_data.times[PT_TIME_ISHA] = pt_fix_hour(pt_data->calc_data.times[PT_TIME_SUNSET] + portion_isha);
 	}
 }
 

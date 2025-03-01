@@ -196,7 +196,7 @@ extern "C"
 	pt_date_t pt_get_date(void);
 	double pt_get_timezone_offset(void);
 
-	void pt_get_islamic_times(pt_islamic_time_t islamic_time);
+	void pt_get_islamic_times(pt_islamic_time_t* islamic_time);
 	
 #ifdef __cplusplus
 }

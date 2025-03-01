@@ -6,7 +6,10 @@ extern "C"
 {
 #endif
 
-#define SCR_MAIN_LBL_HEADER_TITLE                               "Prayer Times 0000.00.00 Unknown"
+#include "prayertimes/prayertimes.h"
+
+#define SCR_MAIN_LBL_HEADER_TITLE                               "Prayer Times 0000.00.00"
+#define SCR_MAIN_LBL_HEADER_TITLE_FORMAT                        "Prayer Times %04d.%02d.%02d"
 #define SCR_MAIN_LBL_TIMES_IMSAK_TITLE                          "IMSAK"
 #define SCR_MAIN_LBL_TIMES_FAJR_TITLE                           "FAJR"
 #define SCR_MAIN_LBL_TIMES_SUNRISE_TITLE                        "SUNRISE"
@@ -20,6 +23,7 @@ extern "C"
 #define SCR_MAIN_LBL_TIMES_DAY_TITLE                            "DAY"
 #define SCR_MAIN_LBL_TIMES_NIGHT_TITLE                          "NIGHT"
 #define SCR_MAIN_LBL_TIMES_HOUR_VALUE                           "00:00:00"
+#define SCR_MAIN_LBL_TIMES_HOUR_VALUE_FORMAT                    "%02d:%02d:%02d"
 
 #define SCR_SETTINGS_HEADER_TITLE                               "Prayer Times Settings"
 #define SCR_SETTINGS_LBL_ITEMS_CALC_METHOD_HEADER               "Calculation Method"
@@ -56,7 +60,7 @@ extern "C"
 #define SCR_SETTINGS_LBL_TIME_ZONE_OFFSET                       "Time Zone Offset: "
 
 #define SCR_SETTINGS_TA_MAX_LENGHT_FLOAT                        12
-#define SCR_SETTINGS_TA_MAX_LENGHT_DECIMAL                      4
+#define SCR_SETTINGS_TA_MAX_LENGHT_DECIMAL                      5
 #define SCR_SETTINGS_TA_MAX_LENGHT_DATE                         10
 #define SCR_SETTINGS_TA_MAX_LENGHT_HOUR                         6
 #define SCR_SETTINGS_TA_ACCEPTED_CHARS_FLOAT                    "0123456789.+-"
@@ -79,9 +83,19 @@ extern "C"
 #define SCR_SETTINGS_TA_OFFSETS_MIDNIGHT_PLACEHOLDER            "Midnight Offset in minutes e.g: 3"
 #define SCR_SETTINGS_TA_LOCATION_LATATIUDE_PLACEHOLDER          "Latatiude e.g: 35.6892"
 #define SCR_SETTINGS_TA_LOCATION_LONGITUDE_PLACEHOLDER          "Longitude e.g: 51.3890"
-#define SCR_SETTINGS_TA_LOCATION_ALTITUDE_PLACEHOLDER           "Altitude in Meter e.g: 1200"
+#define SCR_SETTINGS_TA_LOCATION_ALTITUDE_PLACEHOLDER           "Altitude in meter e.g: 1200"
 #define SCR_SETTINGS_TA_DATE_PLACEHOLDER                        "Date in Gregorian e.g: 2025.02.25"
 #define SCR_SETTINGS_TA_TIME_ZONE_OFFSET_PLACEHOLDER            "Time Zone Offset e.g: 03:30"
+
+#define SCR_SETTINGS_TA_FLOAT_TEXT                              "+0.0"
+#define SCR_SETTINGS_TA_DECIMAL_TEXT                            "+0"
+#define SCR_SETTINGS_TA_DATE_TEXT                               "2025.01.01"
+#define SCR_SETTINGS_TA_TIME_ZONE_OFFSET_TEXT                   "+00:00"
+
+#define SCR_SETTINGS_TA_FLOAT_TEXT_FORMAT                       "%c%f"
+#define SCR_SETTINGS_TA_DECIMAL_TEXT_FORMAT                     "%c%d"
+#define SCR_SETTINGS_TA_DATE_TEXT_FORMAT                        "%04d.%02d.%02d"
+#define SCR_SETTINGS_TA_TIME_ZONE_OFFSET_TEXT_FORMAT            "%c%02d:%02d"
 
 #define SCR_SETTINGS_CALC_METHOD_CUSTOM                         "Custom"  
 #define SCR_SETTINGS_CALC_METHOD_ALGERIA_MOFA                   "Algeria"

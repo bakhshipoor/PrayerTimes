@@ -525,91 +525,109 @@ void scr_settings_init_objects(void)
     lv_textarea_set_placeholder_text(ta_angle_imsak, SCR_SETTINGS_TA_ANGLES_IMSAK_PLACEHOLDER);
     lv_textarea_set_accepted_chars(ta_angle_imsak, SCR_SETTINGS_TA_ACCEPTED_CHARS_FLOAT);
     lv_textarea_set_max_length(ta_angle_imsak, SCR_SETTINGS_TA_MAX_LENGHT_FLOAT);
+    lv_textarea_set_text(ta_angle_imsak, SCR_SETTINGS_TA_FLOAT_TEXT);
 
     lv_textarea_set_one_line(ta_angle_fajr, true);
     lv_textarea_set_placeholder_text(ta_angle_fajr, SCR_SETTINGS_TA_ANGLES_FAJR_PLACEHOLDER);
     lv_textarea_set_accepted_chars(ta_angle_fajr, SCR_SETTINGS_TA_ACCEPTED_CHARS_FLOAT);
     lv_textarea_set_max_length(ta_angle_fajr, SCR_SETTINGS_TA_MAX_LENGHT_FLOAT);
+    lv_textarea_set_text(ta_angle_fajr, SCR_SETTINGS_TA_FLOAT_TEXT);
 
     lv_textarea_set_one_line(ta_angle_maghrib, true);
     lv_textarea_set_placeholder_text(ta_angle_maghrib, SCR_SETTINGS_TA_ANGLES_MAGHRIB_PLACEHOLDER);
     lv_textarea_set_accepted_chars(ta_angle_maghrib, SCR_SETTINGS_TA_ACCEPTED_CHARS_FLOAT);
     lv_textarea_set_max_length(ta_angle_maghrib, SCR_SETTINGS_TA_MAX_LENGHT_FLOAT);
+    lv_textarea_set_text(ta_angle_maghrib, SCR_SETTINGS_TA_FLOAT_TEXT);
 
     lv_textarea_set_one_line(ta_angle_isha, true);
     lv_textarea_set_placeholder_text(ta_angle_isha, SCR_SETTINGS_TA_ANGLES_ISHA_PLACEHOLDER);
     lv_textarea_set_accepted_chars(ta_angle_isha, SCR_SETTINGS_TA_ACCEPTED_CHARS_FLOAT);
     lv_textarea_set_max_length(ta_angle_isha, SCR_SETTINGS_TA_MAX_LENGHT_FLOAT);
+    lv_textarea_set_text(ta_angle_isha, SCR_SETTINGS_TA_FLOAT_TEXT);
 
     lv_textarea_set_one_line(ta_offset_imsak, true);
     lv_textarea_set_placeholder_text(ta_offset_imsak, SCR_SETTINGS_TA_OFFSETS_IMSAK_PLACEHOLDER);
     lv_textarea_set_accepted_chars(ta_offset_imsak, SCR_SETTINGS_TA_ACCEPTED_CHARS_DECIMAL);
     lv_textarea_set_max_length(ta_offset_imsak, SCR_SETTINGS_TA_MAX_LENGHT_DECIMAL);
+    lv_textarea_set_text(ta_offset_imsak, SCR_SETTINGS_TA_DECIMAL_TEXT);
 
     lv_textarea_set_one_line(ta_offset_fajr, true);
     lv_textarea_set_placeholder_text(ta_offset_fajr, SCR_SETTINGS_TA_OFFSETS_FAJR_PLACEHOLDER);
     lv_textarea_set_accepted_chars(ta_offset_fajr, SCR_SETTINGS_TA_ACCEPTED_CHARS_DECIMAL);
     lv_textarea_set_max_length(ta_offset_fajr, SCR_SETTINGS_TA_MAX_LENGHT_DECIMAL);
+    lv_textarea_set_text(ta_offset_fajr, SCR_SETTINGS_TA_DECIMAL_TEXT);
 
     lv_textarea_set_one_line(ta_offset_sunrise, true);
     lv_textarea_set_placeholder_text(ta_offset_sunrise, SCR_SETTINGS_TA_OFFSETS_SUNRISE_PLACEHOLDER);
     lv_textarea_set_accepted_chars(ta_offset_sunrise, SCR_SETTINGS_TA_ACCEPTED_CHARS_DECIMAL);
     lv_textarea_set_max_length(ta_offset_sunrise, SCR_SETTINGS_TA_MAX_LENGHT_DECIMAL);
+    lv_textarea_set_text(ta_offset_sunrise, SCR_SETTINGS_TA_DECIMAL_TEXT);
 
     lv_textarea_set_one_line(ta_offset_duhur, true);
     lv_textarea_set_placeholder_text(ta_offset_duhur, SCR_SETTINGS_TA_OFFSETS_DUHUR_PLACEHOLDER);
     lv_textarea_set_accepted_chars(ta_offset_duhur, SCR_SETTINGS_TA_ACCEPTED_CHARS_DECIMAL);
     lv_textarea_set_max_length(ta_offset_duhur, SCR_SETTINGS_TA_MAX_LENGHT_DECIMAL);
+    lv_textarea_set_text(ta_offset_duhur, SCR_SETTINGS_TA_DECIMAL_TEXT);
 
     lv_textarea_set_one_line(ta_offset_asr, true);
     lv_textarea_set_placeholder_text(ta_offset_asr, SCR_SETTINGS_TA_OFFSETS_ASR_PLACEHOLDER);
     lv_textarea_set_accepted_chars(ta_offset_asr, SCR_SETTINGS_TA_ACCEPTED_CHARS_DECIMAL);
     lv_textarea_set_max_length(ta_offset_asr, SCR_SETTINGS_TA_MAX_LENGHT_DECIMAL);
+    lv_textarea_set_text(ta_offset_asr, SCR_SETTINGS_TA_DECIMAL_TEXT);
 
     lv_textarea_set_one_line(ta_offset_sunset, true);
     lv_textarea_set_placeholder_text(ta_offset_sunset, SCR_SETTINGS_TA_OFFSETS_SUNSET_PLACEHOLDER);
     lv_textarea_set_accepted_chars(ta_offset_sunset, SCR_SETTINGS_TA_ACCEPTED_CHARS_DECIMAL);
     lv_textarea_set_max_length(ta_offset_sunset, SCR_SETTINGS_TA_MAX_LENGHT_DECIMAL);
+    lv_textarea_set_text(ta_offset_sunset, SCR_SETTINGS_TA_DECIMAL_TEXT);
 
     lv_textarea_set_one_line(ta_offset_maghrib, true);
     lv_textarea_set_placeholder_text(ta_offset_maghrib, SCR_SETTINGS_TA_OFFSETS_MAGHRIB_PLACEHOLDER);
     lv_textarea_set_accepted_chars(ta_offset_maghrib, SCR_SETTINGS_TA_ACCEPTED_CHARS_DECIMAL);
     lv_textarea_set_max_length(ta_offset_maghrib, SCR_SETTINGS_TA_MAX_LENGHT_DECIMAL);
+    lv_textarea_set_text(ta_offset_maghrib, SCR_SETTINGS_TA_DECIMAL_TEXT);
 
     lv_textarea_set_one_line(ta_offset_isha, true);
     lv_textarea_set_placeholder_text(ta_offset_isha, SCR_SETTINGS_TA_OFFSETS_ISHA_PLACEHOLDER);
     lv_textarea_set_accepted_chars(ta_offset_isha, SCR_SETTINGS_TA_ACCEPTED_CHARS_DECIMAL);
     lv_textarea_set_max_length(ta_offset_isha, SCR_SETTINGS_TA_MAX_LENGHT_DECIMAL);
+    lv_textarea_set_text(ta_offset_isha, SCR_SETTINGS_TA_DECIMAL_TEXT);
 
     lv_textarea_set_one_line(ta_offset_midnight, true);
     lv_textarea_set_placeholder_text(ta_offset_midnight, SCR_SETTINGS_TA_OFFSETS_MIDNIGHT_PLACEHOLDER);
     lv_textarea_set_accepted_chars(ta_offset_midnight, SCR_SETTINGS_TA_ACCEPTED_CHARS_DECIMAL);
     lv_textarea_set_max_length(ta_offset_midnight, SCR_SETTINGS_TA_MAX_LENGHT_DECIMAL);
+    lv_textarea_set_text(ta_offset_midnight, SCR_SETTINGS_TA_DECIMAL_TEXT);
 
     lv_textarea_set_one_line(ta_location_latitude, true);
     lv_textarea_set_placeholder_text(ta_location_latitude, SCR_SETTINGS_TA_LOCATION_LATATIUDE_PLACEHOLDER);
     lv_textarea_set_accepted_chars(ta_location_latitude, SCR_SETTINGS_TA_ACCEPTED_CHARS_FLOAT);
     lv_textarea_set_max_length(ta_location_latitude, SCR_SETTINGS_TA_MAX_LENGHT_FLOAT);
+    lv_textarea_set_text(ta_location_latitude, SCR_SETTINGS_TA_FLOAT_TEXT);
 
     lv_textarea_set_one_line(ta_location_longitude, true);
     lv_textarea_set_placeholder_text(ta_location_longitude, SCR_SETTINGS_TA_LOCATION_LONGITUDE_PLACEHOLDER);
     lv_textarea_set_accepted_chars(ta_location_longitude, SCR_SETTINGS_TA_ACCEPTED_CHARS_FLOAT);
     lv_textarea_set_max_length(ta_location_longitude, SCR_SETTINGS_TA_MAX_LENGHT_FLOAT);
+    lv_textarea_set_text(ta_location_longitude, SCR_SETTINGS_TA_FLOAT_TEXT);
 
     lv_textarea_set_one_line(ta_location_altitude, true);
     lv_textarea_set_placeholder_text(ta_location_altitude, SCR_SETTINGS_TA_LOCATION_ALTITUDE_PLACEHOLDER);
     lv_textarea_set_accepted_chars(ta_location_altitude, SCR_SETTINGS_TA_ACCEPTED_CHARS_DECIMAL);
-    lv_textarea_set_max_length(ta_location_altitude, SCR_SETTINGS_TA_MAX_LENGHT_FLOAT);
+    lv_textarea_set_max_length(ta_location_altitude, SCR_SETTINGS_TA_MAX_LENGHT_DECIMAL);
+    lv_textarea_set_text(ta_location_altitude, SCR_SETTINGS_TA_DECIMAL_TEXT);
 
     lv_textarea_set_one_line(ta_date, true);
     lv_textarea_set_placeholder_text(ta_date, SCR_SETTINGS_TA_DATE_PLACEHOLDER);
     lv_textarea_set_accepted_chars(ta_date, SCR_SETTINGS_TA_ACCEPTED_CHARS_DATE);
     lv_textarea_set_max_length(ta_date, SCR_SETTINGS_TA_MAX_LENGHT_DATE);
+    lv_textarea_set_text(ta_date, SCR_SETTINGS_TA_DATE_TEXT);
 
     lv_textarea_set_one_line(ta_time_zone_offset, true);
     lv_textarea_set_placeholder_text(ta_time_zone_offset, SCR_SETTINGS_TA_TIME_ZONE_OFFSET_PLACEHOLDER);
     lv_textarea_set_accepted_chars(ta_time_zone_offset, SCR_SETTINGS_TA_ACCEPTED_CHARS_HOUR);
     lv_textarea_set_max_length(ta_time_zone_offset, SCR_SETTINGS_TA_MAX_LENGHT_HOUR);
+    lv_textarea_set_text(ta_time_zone_offset, SCR_SETTINGS_TA_TIME_ZONE_OFFSET_TEXT);
 
     lv_dropdown_set_options_static(dd_calc_method, calc_method_options);
     lv_dropdown_set_dir(dd_calc_method, LV_DIR_LEFT);

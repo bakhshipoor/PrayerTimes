@@ -1,7 +1,9 @@
+#include <stdio.h>
 #include "prayer_times_ui_events.h"
 #include "scr_main.h"
 #include "scr_settings.h"
-#include <stdio.h>
+#include "prayer_times_ui_texts.h"
+#include "prayer_times_ui_update.h"
 
 char* ta_last_txt = NULL;
 uint32_t ta_last_txt_len = 0;
@@ -55,11 +57,11 @@ void scr_settings_ta_float_event(lv_event_t* e)
         lv_indev_reset(NULL, ta);
         if (len < 2 && (ta_txt[0] == '-' || ta_txt[0] == '+'))
         {
-            lv_textarea_set_text(ta, "+0.0");
+            lv_textarea_set_text(ta, SCR_SETTINGS_TA_FLOAT_TEXT);
         }
         else if (len == 0)
         {
-            lv_textarea_set_text(ta, "+0.0");
+            lv_textarea_set_text(ta, SCR_SETTINGS_TA_FLOAT_TEXT);
         }
     }
     else if (code == LV_EVENT_INSERT)
@@ -118,11 +120,11 @@ void scr_settings_ta_decimal_event(lv_event_t* e)
         lv_indev_reset(NULL, ta);
         if (len < 2 && (ta_txt[0] == '-' || ta_txt[0] == '+'))
         {
-            lv_textarea_set_text(ta, "+0");
+            lv_textarea_set_text(ta, SCR_SETTINGS_TA_DECIMAL_TEXT);
         }
         else if (len == 0)
         {
-            lv_textarea_set_text(ta, "+0");
+            lv_textarea_set_text(ta, SCR_SETTINGS_TA_DECIMAL_TEXT);
         }
     }
     else if (code == LV_EVENT_INSERT)
@@ -167,7 +169,7 @@ void scr_settings_ta_date_event(lv_event_t* e)
         lv_obj_remove_flag(cl, LV_OBJ_FLAG_HIDDEN);
         if (len < 10)
         {
-            lv_textarea_set_text(ta, "2025.02.25");
+            lv_textarea_set_text(ta, SCR_SETTINGS_TA_DATE_TEXT);
         }
         uint16_t year = 0, month = 0, day = 0;
         get_date_ta_text(lv_textarea_get_text(ta), &year, &month, &day);
@@ -184,7 +186,7 @@ void scr_settings_ta_date_event(lv_event_t* e)
         lv_obj_add_flag(cl, LV_OBJ_FLAG_HIDDEN);
         if (len < 10)
         {
-            lv_textarea_set_text(ta, "2025.02.25");
+            lv_textarea_set_text(ta, SCR_SETTINGS_TA_DATE_TEXT);
         }
     }
     else if (code == LV_EVENT_KEY)
@@ -227,11 +229,11 @@ void scr_settings_ta_timezone_event(lv_event_t* e)
         lv_indev_reset(NULL, ta);
         if (len < 2 && (ta_txt[0] == '-' || ta_txt[0] == '+'))
         {
-            lv_textarea_set_text(ta, "+00:00");
+            lv_textarea_set_text(ta, SCR_SETTINGS_TA_TIME_ZONE_OFFSET_TEXT);
         }
         else if (len == 0)
         {
-            lv_textarea_set_text(ta, "+00:00");
+            lv_textarea_set_text(ta, SCR_SETTINGS_TA_TIME_ZONE_OFFSET_TEXT);
         }
     }
     else if (code == LV_EVENT_INSERT)
@@ -262,6 +264,10 @@ void scr_settings_ta_timezone_event(lv_event_t* e)
                     lv_textarea_delete_char(ta);
                     return;
                 }
+
+                ta_txt = lv_textarea_get_text(ta);
+                len = strlen(ta_txt);
+                cur = lv_textarea_get_cursor_pos(ta);
                 if (ta_last_cur_pos < 2)
                 {
                     if (digit > 2)
@@ -295,21 +301,28 @@ void scr_settings_ta_timezone_event(lv_event_t* e)
                 }
 
                 ta_txt = lv_textarea_get_text(ta);
-                len = strlen(lv_textarea_get_text);
-
-                if (len > 4 && get_colon_pos(ta_txt) == -1)
+                len = strlen(ta_txt);
+                cur = lv_textarea_get_cursor_pos(ta);
+                if (len > 5 && get_colon_pos(ta_txt) == -1)
                 {
                     lv_textarea_delete_char(ta);
                 }
 
+                ta_txt = lv_textarea_get_text(ta);
+                len = strlen(ta_txt);
+                cur = lv_textarea_get_cursor_pos(ta);
                 int colon_pos = get_colon_pos(ta_txt);
                 if (colon_pos != -1)
                 {
                     lv_textarea_set_cursor_pos(ta, colon_pos);
                     lv_textarea_delete_char_forward(ta);
+                    lv_textarea_set_cursor_pos(ta, cur);
                 }
-                ta_txt = lv_textarea_get_text(ta);
 
+
+                ta_txt = lv_textarea_get_text(ta);
+                len = strlen(ta_txt);
+                //cur = lv_textarea_get_cursor_pos(ta);
                 if (len > 2 && get_colon_pos(ta_txt) == -1)
                 {
                     lv_textarea_set_cursor_pos(ta, 3);
@@ -323,13 +336,11 @@ void scr_settings_ta_timezone_event(lv_event_t* e)
                     lv_textarea_add_char(ta, '+');
                     lv_textarea_set_cursor_pos(ta, cur + 1);
                 }
-            }
-            
-            
 
-            if (ta_last_cur_pos > 0 && (ta_last_inserted_char[0] == '-' || ta_last_inserted_char[0] == '+'))
-            {
-                lv_textarea_delete_char(ta);
+                if (ta_last_inserted_char != NULL && ta_last_cur_pos > 0 && (ta_last_inserted_char[0] == '-' || ta_last_inserted_char[0] == '+'))
+                {
+                    lv_textarea_delete_char(ta);
+                }
             }
         }
     }
@@ -339,9 +350,31 @@ void scr_settings_dd_event(lv_event_t* e)
 {
     lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t* dd = lv_event_get_target(e);
+    int x = 0;
     if (code == LV_EVENT_VALUE_CHANGED)
     {
-
+        if (dd == dd_calc_method)
+        {
+            pt_set_calc_method(lv_dropdown_get_selected(dd));
+            pt_ui_update_setting_angles();
+            pt_ui_update_setting_offsets();
+            pt_ui_update_main_screen();
+        }
+        else if (dd == dd_juristic)
+        {
+            pt_set_juristic_method(lv_dropdown_get_selected(dd));
+            pt_ui_update_main_screen();
+        }
+        else if (dd == dd_hl_method)
+        {
+            pt_set_hilat_method(lv_dropdown_get_selected(dd));
+            pt_ui_update_main_screen();
+        }
+        else if (dd == dd_md_method)
+        {
+            pt_set_midnight_method(lv_dropdown_get_selected(dd));
+            pt_ui_update_main_screen();
+        }
     }
 }
 
