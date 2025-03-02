@@ -78,9 +78,6 @@ A graphical user interface is provided in the `ui` directory, designed using the
 - **UI Updates**: Manages dynamic updates to the UI elements based on user input and calculated results. (`prayer_times_ui_update.c` and `prayer_times_ui_update.h`)
 - **UI Initialization**: Initializes the UI components and sets up the initial display. (`prayer_times_ui.c` and `prayer_times_ui.h`)
 
-## Contributing
-We welcome contributions! To contribute, please fork the repository, make your changes, and submit a pull request. We appreciate your help in improving this project.
-
 ## License
 This project is licensed under the MIT License. Please see the [LICENSE](LICENSE) file for more details.
 
