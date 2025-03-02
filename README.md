@@ -85,6 +85,13 @@ A graphical user interface is provided in the `ui` directory, designed using the
 - **UI Updates**: Manages dynamic updates to the UI elements based on user input and calculated results. (`prayer_times_ui_update.c` and `prayer_times_ui_update.h`)
 - **UI Initialization**: Initializes the UI components and sets up the initial display. (`prayer_times_ui.c` and `prayer_times_ui.h`)
 
+### Screenshots
+![Main Screen](https://github.com/bakhshipoor/PrayerTimes/blob/master/assets/prayer_times_ui_main_screen.jpg)
+*Main Screen of the Prayer Times UI*
+
+![Settings Screen](https://github.com/bakhshipoor/PrayerTimes/blob/master/assets/prayer_times_ui_settings_screen_01.jpg)
+*Settings Screen of the Prayer Times UI*
+
 ## License
 This project is licensed under the MIT License. Please see the [LICENSE](LICENSE) file for more details.
 
