@@ -4,7 +4,7 @@
 
 # Prayer Times Calculator
 
-This repository hosts a comprehensive library designed to calculate Muslim prayer times. The core implementation is primarily in C, with additional components in C++, and features a graphical user interface (UI) for testing the calculations using the LVGL library.
+This repository hosts a comprehensive library designed to calculate Muslim prayer times. The core implementation is primarily in C, and features a graphical user interface (UI) for testing the calculations using the LVGL library.
 
 ## Table of Contents
 - [Features](#features)
