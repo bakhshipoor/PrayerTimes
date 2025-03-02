@@ -1,10 +1,9 @@
 ![Prayer Times Library](https://github.com/bakhshipoor/PrayerTimes/blob/master/assets/prayer_times_header_image.jpg?raw=true)
 
 <br />
-
 # Prayer Times Calculator
 
-This repository hosts a comprehensive library designed to calculate Muslim prayer times. The core implementation is primarily in C, and features a graphical user interface (UI) for testing the calculations using the LVGL library.
+This repository hosts a comprehensive library designed to calculate Muslim prayer times. The core implementation is primarily in C, and features a graphical user interface (UI) for testing the calculations using the [LVGL](https://github.com/lvgl/lvgl) library.
 
 ## Table of Contents
 - [Features](#features)
@@ -12,8 +11,8 @@ This repository hosts a comprehensive library designed to calculate Muslim praye
 - [Usage](#usage)
 - [Parameters for Calculation](#parameters-for-calculation)
 - [Calculated Times](#calculated-times)
+- [Library Files](#library-files)
 - [UI for Testing](#ui-for-testing)
-- [Contributing](#contributing)
 - [License](#license)
 - [References](#references)
 
@@ -67,8 +66,16 @@ After setting the necessary parameters, the library can calculate the following 
 - **Day Length**: The duration of the day from sunrise to sunset.
 - **Night Length**: The duration of the night from sunset to sunrise.
 
+## Library Files
+The core calculation library is located in the `prayertimes` directory. Below are the key files and their functionalities:
+
+- **prayertimes.c**: Implements the core functions for calculating prayer times based on different methods, angles, and offsets. It includes functions for setting and getting various parameters, and for calculating each prayer time (e.g., Fajr, Dhuhr, Asr, etc.).
+- **prayertimes.h**: The header file that declares the functions, enums, and structs used in `prayertimes.c`. It includes definitions for calculation methods, juristic methods, higher latitude methods, and midnight methods, as well as structs for storing settings and calculation results.
+- **prayertimes_math.c**: Contains mathematical functions used in the calculation of prayer times, such as converting times to and from different formats, calculating the sun's position, and adjusting times for higher latitudes.
+- **prayertimes_math.h**: The header file for `prayertimes_math.c`, declaring the mathematical functions used in the core library.
+
 ## UI for Testing
-A graphical user interface is provided in the `ui` directory, designed using the LVGL library. This UI allows users to interactively test and validate the prayer times calculations.
+A graphical user interface is provided in the `ui` directory, designed using the [LVGL](https://github.com/lvgl/lvgl) library. This UI allows users to interactively test and validate the prayer times calculations.
 
 ### UI Components
 - **Main Screen**: The main interface of the application where the calculated prayer times are displayed. (`scr_main.c` and `scr_main.h`)
