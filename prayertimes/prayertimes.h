@@ -100,10 +100,10 @@ extern "C"
 
 	typedef struct pt_angles_struct
 	{
-		float imsak;
-		float fajr;
-		float maghrib;
-		float isha;
+		double imsak;
+		double fajr;
+		double maghrib;
+		double isha;
 	}pt_angles_t;
 
 	typedef struct pt_offsets_struct

@@ -11,6 +11,8 @@ uint32_t ta_last_cur_pos = 0;
 char* ta_last_inserted_char = NULL;
 bool ta_insert_status = 0;
 
+static tz_offset_state_t tz_state;
+
 void scr_main_btn_settings_event(lv_event_t* e)
 {
     lv_event_code_t code = lv_event_get_code(e);
@@ -62,6 +64,31 @@ void scr_settings_ta_float_event(lv_event_t* e)
         else if (len == 0)
         {
             lv_textarea_set_text(ta, SCR_SETTINGS_TA_FLOAT_TEXT);
+        }
+
+        if (ta == ta_angle_imsak)
+        {
+            pt_ui_update_prayer_times_angles(ANGLE_IMSAK, lv_textarea_get_text(ta));
+        }
+        else if (ta == ta_angle_fajr)
+        {
+            pt_ui_update_prayer_times_angles(ANGLE_FAJR, lv_textarea_get_text(ta));
+        }
+        else if (ta == ta_angle_maghrib)
+        {
+            pt_ui_update_prayer_times_angles(ANGLE_MAGHRIB, lv_textarea_get_text(ta));
+        }
+        else if (ta == ta_angle_isha)
+        {
+            pt_ui_update_prayer_times_angles(ANGLE_ISHA, lv_textarea_get_text(ta));
+        }
+        else if (ta == ta_location_latitude)
+        {
+            pt_ui_update_prayer_times_location(LOCATION_LATATIUDE, lv_textarea_get_text(ta));
+        }
+        else if (ta == ta_location_longitude)
+        {
+            pt_ui_update_prayer_times_location(LOCATION_LONGITUDE, lv_textarea_get_text(ta));
         }
     }
     else if (code == LV_EVENT_INSERT)
@@ -126,6 +153,47 @@ void scr_settings_ta_decimal_event(lv_event_t* e)
         {
             lv_textarea_set_text(ta, SCR_SETTINGS_TA_DECIMAL_TEXT);
         }
+
+        if (ta == ta_offset_imsak)
+        {
+            pt_ui_update_prayer_times_offsets(OFFSET_IMSAK, lv_textarea_get_text(ta));
+        }
+        else if (ta == ta_offset_fajr)
+        {
+            pt_ui_update_prayer_times_offsets(OFFSET_FAJR, lv_textarea_get_text(ta));
+        }
+        else if (ta == ta_offset_sunrise)
+        {
+            pt_ui_update_prayer_times_offsets(OFFSET_SUNRISE, lv_textarea_get_text(ta));
+        }
+        else if (ta == ta_offset_duhur)
+        {
+            pt_ui_update_prayer_times_offsets(OFFSET_DUHUR, lv_textarea_get_text(ta));
+        }
+        else if (ta == ta_offset_asr)
+        {
+            pt_ui_update_prayer_times_offsets(OFFSET_ASR, lv_textarea_get_text(ta));
+        }
+        else if (ta == ta_offset_sunset)
+        {
+            pt_ui_update_prayer_times_offsets(OFFSET_SUNSET, lv_textarea_get_text(ta));
+        }
+        else if (ta == ta_offset_maghrib)
+        {
+            pt_ui_update_prayer_times_offsets(OFFSET_MAGHRIB, lv_textarea_get_text(ta));
+        }
+        else if (ta == ta_offset_isha)
+        {
+            pt_ui_update_prayer_times_offsets(OFFSET_ISHA, lv_textarea_get_text(ta));
+        }
+        else if (ta == ta_offset_midnight)
+        {
+            pt_ui_update_prayer_times_offsets(OFFSET_MIDNIGHT, lv_textarea_get_text(ta));
+        }
+        else if (ta == ta_location_altitude)
+        {
+            pt_ui_update_prayer_times_location(LOCATION_ALTITUDE, lv_textarea_get_text(ta));
+        }
     }
     else if (code == LV_EVENT_INSERT)
     {
@@ -183,11 +251,12 @@ void scr_settings_ta_date_event(lv_event_t* e)
     }
     else if (code == LV_EVENT_DEFOCUSED || code == LV_EVENT_READY || code == LV_EVENT_CANCEL)
     {
-        lv_obj_add_flag(cl, LV_OBJ_FLAG_HIDDEN);
+        //lv_obj_add_flag(cl, LV_OBJ_FLAG_HIDDEN);
         if (len < 10)
         {
             lv_textarea_set_text(ta, SCR_SETTINGS_TA_DATE_TEXT);
         }
+        pt_ui_update_prayer_times_date(lv_textarea_get_text(ta));
     }
     else if (code == LV_EVENT_KEY)
     {
@@ -227,14 +296,8 @@ void scr_settings_ta_timezone_event(lv_event_t* e)
         lv_keyboard_set_textarea(kb, NULL);
         lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
         lv_indev_reset(NULL, ta);
-        if (len < 2 && (ta_txt[0] == '-' || ta_txt[0] == '+'))
-        {
-            lv_textarea_set_text(ta, SCR_SETTINGS_TA_TIME_ZONE_OFFSET_TEXT);
-        }
-        else if (len == 0)
-        {
-            lv_textarea_set_text(ta, SCR_SETTINGS_TA_TIME_ZONE_OFFSET_TEXT);
-        }
+        fix_time_format(ta);
+        pt_ui_update_prayer_times_time_zone(lv_textarea_get_text(ta));
     }
     else if (code == LV_EVENT_INSERT)
     {
@@ -384,14 +447,14 @@ void scr_settings_kb_event(lv_event_t* e)
     lv_keyboard_t* kb = (lv_keyboard_t*)lv_event_get_target(e);
     if (code == LV_EVENT_PRESSED)
     {
-        uint32_t key_id = lv_keyboard_get_selected_button(kb);
-        const char* key = lv_keyboard_get_button_text(kb, key_id);
-        if (strcmp(key,LV_SYMBOL_OK)==0 || strcmp(key, LV_SYMBOL_KEYBOARD) == 0)
-        {
-            lv_keyboard_set_textarea(kb, NULL);
-            lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
-            
-        }
+        //uint32_t key_id = lv_keyboard_get_selected_button(kb);
+        //const char* key = lv_keyboard_get_button_text(kb, key_id);
+        //if (strcmp(key,LV_SYMBOL_OK)==0 || strcmp(key, LV_SYMBOL_KEYBOARD) == 0)
+        //{
+        //    lv_keyboard_set_textarea(kb, NULL);
+        //    lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
+        //    
+        //}
     }
 }
 
@@ -400,7 +463,8 @@ void scr_settings_cl_event(lv_event_t* e)
     lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t* ta = lv_event_get_user_data(e);
     lv_obj_t* obj = lv_event_get_current_target(e);
-    if (code == LV_EVENT_VALUE_CHANGED) {
+    if (code == LV_EVENT_VALUE_CHANGED) 
+    {
         lv_calendar_date_t d;
         lv_calendar_get_pressed_date(obj, &d);
         char buf[32];
@@ -424,3 +488,63 @@ int get_colon_pos(const char* ta_txt)
     const char* pos = strchr(ta_txt, ':');
     return pos ? (pos - ta_txt) : -1;
 }
+
+bool validate_time_format(const char* text) 
+{
+    size_t len = strlen(text);
+    if (len != 6) return false;
+
+    if (text[0] != '+' && text[0] != '-') return false;
+
+    int hours = (text[1] - '0') * 10 + (text[2] - '0');
+    if (hours > SCR_SETTINGS_TA_MAX_HOURS) return false;
+
+    if (text[3] != ':') return false;
+
+    int minutes = (text[4] - '0') * 10 + (text[5] - '0');
+    if (minutes > SCR_SETTINGS_TA_MAX_MINUTES) return false;
+
+    return true;
+}
+
+void fix_time_format(lv_obj_t* ta) 
+{
+    const char* text = lv_textarea_get_text(ta);
+    size_t len = strlen(text);
+
+    if (len == 0) 
+    {
+        lv_textarea_set_text(ta, SCR_SETTINGS_TA_TIME_ZONE_OFFSET_TEXT);
+        return;
+    }
+
+    char temp[7] = { 0 };
+    strncpy(temp, text, sizeof(temp) - 1);
+
+    if (temp[0] != '+' && temp[0] != '-') 
+    {
+        memmove(temp + 1, temp, strlen(temp) + 1);
+        temp[0] = '+';
+    }
+
+    if (len >= 3 && temp[3] != ':') 
+    {
+        memmove(temp + 4, temp + 3, strlen(temp + 3) + 1);
+        temp[3] = ':';
+    }
+
+    while (strlen(temp) < 6) 
+    {
+        strcat(temp, "0");
+    }
+
+    if (!validate_time_format(temp)) 
+    {
+        lv_textarea_set_text(ta, SCR_SETTINGS_TA_TIME_ZONE_OFFSET_TEXT);
+    }
+    else 
+    {
+        lv_textarea_set_text(ta, temp);
+    }
+}
+

@@ -166,3 +166,180 @@ void pt_ui_update_setting_time_zone(void)
     lv_snprintf(text_buf, TEXT_BUFFER_SIZE, SCR_SETTINGS_TA_TIME_ZONE_OFFSET_TEXT_FORMAT, tz_offset >= 0 ? '+' : '-', time_zone_offset.hour, time_zone_offset.minute);
     lv_textarea_set_text(ta_time_zone_offset, text_buf);
 }
+
+void pt_ui_update_prayer_times_angles(uint8_t variable, const char* value)
+{
+    double val = 0.0;
+    angles = pt_get_angles();
+    
+    switch (variable)
+    {
+    case ANGLE_IMSAK:
+        val = atof(value);
+        if (val != angles.imsak)
+        {
+            lv_dropdown_set_selected(dd_calc_method, PT_CM_CUSTOM, LV_ANIM_OFF);
+            angles.imsak = val;
+        }
+        break;
+    case ANGLE_FAJR:
+        val = atof(value);
+        if (val != angles.fajr)
+        {
+            lv_dropdown_set_selected(dd_calc_method, PT_CM_CUSTOM, LV_ANIM_OFF);
+            angles.fajr = val;
+        }
+        break;
+    case ANGLE_MAGHRIB:
+        val = atof(value);
+        if (val != angles.maghrib)
+        {
+            lv_dropdown_set_selected(dd_calc_method, PT_CM_CUSTOM, LV_ANIM_OFF);
+            angles.maghrib = val;
+        }
+        break;
+    case ANGLE_ISHA:
+        val = atof(value);
+        if (val != angles.isha)
+        {
+            lv_dropdown_set_selected(dd_calc_method, PT_CM_CUSTOM, LV_ANIM_OFF);
+            angles.isha = val;
+        }
+        break;
+    default:
+        break;
+    }
+    pt_set_angles(&angles);
+    pt_ui_update_main_screen();
+}
+
+void pt_ui_update_prayer_times_offsets(uint8_t variable, const char* value)
+{
+    int16_t val = 0;
+    offsets = pt_get_offsets();
+    switch (variable)
+    {
+    case OFFSET_IMSAK:
+        val = (int16_t)atoi(value);
+        if (val != offsets.imsak)
+        {
+            lv_dropdown_set_selected(dd_calc_method, PT_CM_CUSTOM, LV_ANIM_OFF);
+            offsets.imsak = val;
+        }
+        break;
+    case OFFSET_FAJR:
+        val = (int16_t)atoi(value);
+        if (val != offsets.fajr)
+        {
+            lv_dropdown_set_selected(dd_calc_method, PT_CM_CUSTOM, LV_ANIM_OFF);
+            offsets.fajr = val;
+        }
+        break;
+    case OFFSET_SUNRISE:
+        val = (int16_t)atoi(value);
+        if (val != offsets.sunrise)
+        {
+            lv_dropdown_set_selected(dd_calc_method, PT_CM_CUSTOM, LV_ANIM_OFF);
+            offsets.sunrise = val;
+        }
+        break;
+    case OFFSET_DUHUR:
+        val = (int16_t)atoi(value);
+        if (val != offsets.duhur)
+        {
+            lv_dropdown_set_selected(dd_calc_method, PT_CM_CUSTOM, LV_ANIM_OFF);
+            offsets.duhur = val;
+        }
+        break;
+    case OFFSET_ASR:
+        val = (int16_t)atoi(value);
+        if (val != offsets.asr)
+        {
+            lv_dropdown_set_selected(dd_calc_method, PT_CM_CUSTOM, LV_ANIM_OFF);
+            offsets.asr = val;
+        }
+        break;
+    case OFFSET_SUNSET:
+        val = (int16_t)atoi(value);
+        if (val != offsets.sunset)
+        {
+            lv_dropdown_set_selected(dd_calc_method, PT_CM_CUSTOM, LV_ANIM_OFF);
+            offsets.sunset = val;
+        }
+        break;
+    case OFFSET_MAGHRIB:
+        val = (int16_t)atoi(value);
+        if (val != offsets.maghrib)
+        {
+            lv_dropdown_set_selected(dd_calc_method, PT_CM_CUSTOM, LV_ANIM_OFF);
+            offsets.maghrib = val;
+        }
+        break;
+    case OFFSET_ISHA:
+        val = (int16_t)atoi(value);
+        if (val != offsets.isha)
+        {
+            lv_dropdown_set_selected(dd_calc_method, PT_CM_CUSTOM, LV_ANIM_OFF);
+            offsets.isha = val;
+        }
+        break;
+    case OFFSET_MIDNIGHT:
+        val = (int16_t)atoi(value);
+        if (val != offsets.midnight)
+        {
+            lv_dropdown_set_selected(dd_calc_method, PT_CM_CUSTOM, LV_ANIM_OFF);
+            offsets.midnight = val;
+        }
+        break;
+    default:
+        break;
+    }
+    pt_set_offsets(&offsets);
+    pt_ui_update_main_screen();
+}
+
+void pt_ui_update_prayer_times_location(uint8_t variable, const char* value)
+{
+    location = pt_get_location();
+    switch (variable)
+    {
+    case LOCATION_LATATIUDE:
+        location.latitude = atof(value);
+        break;
+    case LOCATION_LONGITUDE:
+        location.longitude = atof(value);
+        break;
+    case LOCATION_ALTITUDE:
+        location.altitude = atof(value);
+        break;
+    default:
+        break;
+    }
+    pt_set_location(&location);
+    pt_ui_update_main_screen();
+}
+
+void pt_ui_update_prayer_times_date(const char* value)
+{
+    uint32_t y = 0, m = 0, d = 0;
+    int len = sscanf(value, "%d.%d.%d", &y, &m, &d);
+    date.year = (uint16_t)y;
+    date.month = (uint16_t)m;
+    date.day = (uint16_t)d;
+    pt_set_date(&date);
+    pt_ui_update_main_screen();
+}
+
+void pt_ui_update_prayer_times_time_zone(const char* value)
+{
+    uint32_t h = 0, m = 0;
+    char sign = 0;
+    int len = sscanf(value, "%c%d:%d", &sign, &h, &m);
+    tz_offset = pt_time_to_double((int16_t)h, (int16_t)m);
+    if (sign == '-')
+    {
+        tz_offset *= -1.0;
+    }
+    pt_set_timezone_offset(tz_offset);
+    pt_ui_update_main_screen();
+}

@@ -682,7 +682,7 @@ void scr_settings_init_objects(void)
     lv_obj_set_y(scr_settings_calendar, lv_pct(20));
     lv_calendar_header_dropdown_create(scr_settings_calendar);
     lv_calendar_header_dropdown_set_year_list(scr_settings_calendar, scr_settings_calendar_years);
-    lv_calendar_set_month_shown(scr_settings_calendar, 2025, 02);
+    lv_calendar_set_month_shown(scr_settings_calendar, 2025, 1);
     lv_obj_add_flag(scr_settings_calendar, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_event_cb(scr_settings_calendar, scr_settings_cl_event, LV_EVENT_ALL, ta_date);
 }

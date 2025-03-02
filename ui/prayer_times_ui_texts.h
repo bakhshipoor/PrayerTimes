@@ -67,6 +67,8 @@ extern "C"
 #define SCR_SETTINGS_TA_ACCEPTED_CHARS_DECIMAL                  "0123456789+-"
 #define SCR_SETTINGS_TA_ACCEPTED_CHARS_DATE                     "0123456789."
 #define SCR_SETTINGS_TA_ACCEPTED_CHARS_HOUR                     "0123456789:+-"
+#define SCR_SETTINGS_TA_MAX_HOURS                               23
+#define SCR_SETTINGS_TA_MAX_MINUTES                             59
 
 #define SCR_SETTINGS_TA_ANGLES_IMSAK_PLACEHOLDER                "Imsak Angle e.g: 19.5"
 #define SCR_SETTINGS_TA_ANGLES_FAJR_PLACEHOLDER                 "Fajr Angle e.g: 17.7"
