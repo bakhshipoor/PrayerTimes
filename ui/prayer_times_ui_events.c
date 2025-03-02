@@ -471,6 +471,7 @@ void scr_settings_cl_event(lv_event_t* e)
         lv_snprintf(buf, sizeof(buf), "%04d.%02d.%02d", d.year, d.month, d.day);
         lv_textarea_set_text(ta, buf);
         lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
+        pt_ui_update_prayer_times_date(lv_textarea_get_text(ta));
     }
 }
 

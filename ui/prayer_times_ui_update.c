@@ -30,6 +30,7 @@ void pt_ui_update_initial(void)
 void pt_ui_update_main_screen(void)
 {
     pt_get_islamic_times(&islamic_time);
+    date = pt_get_date();
 
     lv_label_set_text_fmt(lbl_information, SCR_MAIN_LBL_HEADER_TITLE_FORMAT, date.year, date.month, date.day);
     lv_label_set_text_fmt(lbl_times_imsak_hour, SCR_MAIN_LBL_TIMES_HOUR_VALUE_FORMAT, islamic_time.imsak.hour, islamic_time.imsak.minute, islamic_time.imsak.second);
