@@ -87,9 +87,11 @@ A graphical user interface is provided in the `ui` directory, designed using the
 
 ### Screenshots
 ![Main Screen](https://github.com/bakhshipoor/PrayerTimes/blob/master/assets/prayer_times_ui_main_screen.jpg)
+
 *Main Screen of the Prayer Times UI*
 
 ![Settings Screen](https://github.com/bakhshipoor/PrayerTimes/blob/master/assets/prayer_times_ui_settings_screen_01.jpg)
+
 *Settings Screen of the Prayer Times UI*
 
 ## License
